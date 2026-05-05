@@ -1,0 +1,30 @@
+# WoW Addon Git Ignore
+
+# Development
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.zip
+*.rar
+releases/
+dist/
+
+# Logs
+*.log
+
+# WoW specific
+# Don't ignore - we want to track all source files
+# But ignore any test saves
+*.wtf
+
+# Temporary files
+*.tmp
+*.bak

@@ -1,0 +1,9 @@
+## Interface: 120005
+## Version: 1.0.0
+## Title: RGX-Hello
+## Notes: Minimal RGX-Framework addon template.
+## Author: Your Name
+## RequiredDeps: RGX-Framework
+## SavedVariables: RGXHelloDB
+
+data/core.lua
