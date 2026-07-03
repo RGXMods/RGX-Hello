@@ -1,26 +1,14 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..
-    ..\FrameXML\UI.xsd">
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 
     <!--
-        HelloRGX - XML Module Loader
-        Load order matters! Core must load first, then dependencies.
+        RGX-Hello — the whole addon is one file. That is the point: with
+        RGX-Framework's declarative RGXAddon front door, a real addon
+        (saved settings, options panel, slash command, minimap button,
+        event handling) does not need to be split across core/events/
+        commands/config files. See data/core.lua.
     -->
-
-    <!-- Core addon table and constants -->
     <Script file="data/core.lua"/>
-
-    <!-- Configuration and settings -->
-    <Script file="data/config.lua"/>
-
-    <!-- Event handlers -->
-    <Script file="data/events.lua"/>
-
-    <!-- Slash commands -->
-    <Script file="data/commands.lua"/>
-
-    <!-- Feature modules would go here -->
-    <!-- <Script file="data/features.lua"/> -->
 
 </Ui>

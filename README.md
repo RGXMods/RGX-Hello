@@ -1,170 +1,97 @@
-# Hello RGX
+# RGX-Hello
 
-A **WoW addon template** demonstrating best practices for building addons with [RGX-Framework](https://github.com/yourusername/RGX-Framework).
+The smallest complete [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) addon — a reference/template for building your own.
 
-This is a minimal, well-documented example that you can use as a starting point for your own RGX-native addons.
+The whole addon is one file, `data/core.lua`, built entirely from the `RGXAddon` declarative front door. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate — RGX-Framework handles all of it.
 
-## Features
+## What You Get
 
-- **Clean Architecture**: Separates core, events, commands, and config into modular files
-- **RGX-Framework Patterns**: Demonstrates proper use of:
-  - `RGX:RegisterEvent()` for event handling
-  - `RGX:After()` and `RGX:Every()` for timers
-  - `RGX:RegisterSlashCommand()` for commands
-  - `RGX:CopyTable()` for settings management
-- **Fail-Fast Dependency Checking**: Errors clearly if RGX-Framework is missing
-- **Comprehensive Examples**: Timer demos, custom messages, slash commands
-- **Template-Ready**: Clear comments showing where to add your own code
+```lua
+RGXAddon "RGX-Hello" {
+    dbName  = "RGXHelloDB",
+    slash   = "rgxhello",
+    minimap = "Interface\\AddOns\\RGX-Hello\\media\\icon.tga",
+
+    db = {
+        enabled = true,
+        volume = 50,
+    },
+
+    options = {
+        General = {
+            { toggle = "enabled", label = "Enable Addon" },
+            { slider = "volume", label = "Volume", min = 0, max = 100, suffix = "%" },
+        },
+    },
+
+    welcome = "loaded -- /rgxhello for options",
+
+    onInit = function(self)
+        self:RegisterEvent("PLAYER_LOGIN", function()
+            self:Print("Hello from RGX-Hello!")
+        end)
+    end,
+}
+```
+
+That single call gives you:
+
+- saved settings with automatic persistence (`db`)
+- a tabbed options panel with db-bound controls that save and restore their visual state correctly (`options`)
+- a slash command whose default handler opens that panel (`slash`)
+- a minimap button (`minimap`)
+- branded chat output (`welcome`, `self:Print`)
+- scoped event registration, routed through the framework's taint-safe paths (`onInit`)
 
 ## Installation
 
 ### Requirements
 
-- World of Warcraft (Retail) - version matching `## Interface:` in `.toc`
-- [RGX-Framework](https://github.com/yourusername/RGX-Framework) must be installed
+- World of Warcraft (Retail) — version matching `## Interface:` in `RGX-Hello.toc`
+- [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) must be installed
 
 ### Installing This Addon
 
 1. Download or clone this repository
-2. Copy the `HelloRGX` folder to your WoW AddOns directory:
+2. Copy the `RGX-Hello` folder to your WoW AddOns directory:
    ```
    World of Warcraft\_retail_\Interface\AddOns\
    ```
 3. Restart WoW or run `/reload`
-4. Enable "Hello RGX" in the AddOns list
+4. Enable both "RGX-Framework" and "RGX-Hello" in the AddOns list
 
 ## Usage
 
-### Slash Commands
+Type `/rgxhello` (or `/rgxhello volume`, etc.) in-game to open the options panel. On login, the addon prints a greeting to chat.
 
-Once in-game, type any of these commands:
+## Using This As a Template
 
-| Command | Description |
-|---------|-------------|
-| `/hellorgx` or `/hrgx` | Show help |
-| `/hrgx greet` | Show greeting message |
-| `/hrgx toggle` | Enable/disable addon |
-| `/hrgx timer [start\|stop]` | Control demo timer |
-| `/hrgx msg <text>` | Set custom greeting |
-| `/hrgx debug` | Toggle debug output |
-| `/hrgx status` | Show current settings |
-| `/hrgx reset` | Reset to defaults |
-| `/hrgx demo` | Run feature demonstration |
+1. Rename the folder, `RGX-Hello.toc`, and `RGX-Hello.xml` to your addon's name.
+2. Edit the TOC header (`Title`, `Notes`, `Author`, `SavedVariables`).
+3. Edit the `RGXAddon "..." { }` call in `data/core.lua`:
+   - `db` — your saved settings and their defaults
+   - `options` — your options panel tabs and controls
+   - `onInit` — your addon's actual behavior (events, timers, UI)
+4. Replace `media/icon.tga` with your own minimap icon, or drop the `minimap` key entirely if you don't want one.
 
-### What You'll See
-
-On first load, the addon will:
-1. Print a greeting message to chat
-2. Start a demo timer (if enabled)
-3. Register slash commands
-
-## Using This Template
-
-### 1. Rename the Addon
-
-Find and replace all occurrences of:
-- `HelloRGX` → `YourAddonName`
-- `HELLO_` → `YOURPREFIX_` (for event IDs)
-- `hellorgx` → `yourcommand`
-
-### 2. Update Metadata
-
-Edit `HelloRGX.toc`:
-```toc
-## Title: Your Addon Name
-## Notes: Description of what your addon does
-## Author: Your Name
-## SavedVariables: YourAddonDB
-```
-
-### 3. Modify Core Logic
-
-Open `data/core.lua` and customize:
-- `DEFAULTS` table for your settings
-- Public API methods
-- Utility functions
-
-### 4. Add Event Handlers
-
-In `data/events.lua`:
-- Add your event handlers as methods on the addon table
-- Register them at the bottom using `RGX:RegisterEvent()`
-
-### 5. Create Slash Commands
-
-In `data/commands.lua`:
-- Add command handlers
-- Register aliases with `RGX:RegisterSlashCommand()`
-
-### 6. Build Your UI
-
-In `data/config.lua`:
-- Add settings panel code
-- Uncomment minimap button example if needed
+See [SUPER-SIMPLE.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/SUPER-SIMPLE.md) and [API.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/API.md) in RGX-Framework for the full declarative surface (more control types, `RGX:Font`, dropdowns, tooltips, etc).
 
 ## Project Structure
 
 ```
-HelloRGX/
-├── HelloRGX.toc          # Addon metadata (rename me!)
-├── HelloRGX.xml          # Module loader
+RGX-Hello/
+├── RGX-Hello.toc      # Addon metadata
+├── RGX-Hello.xml      # Loads data/core.lua
 ├── data/
-│   ├── core.lua          # Main addon table, settings
-│   ├── events.lua        # Event handlers
-│   ├── commands.lua      # Slash commands
-│   └── config.lua        # UI configuration
-├── media/
-│   ├── icon.tga          # Addon icon (replace me!)
-│   └── README.md         # Asset guidelines
-└── docs/
-    └── TEMPLATE.md       # Detailed template guide
+│   └── core.lua       # The entire addon
+└── media/
+    └── icon.tga        # Minimap icon
 ```
-
-## RGX-Framework Quick Reference
-
-### Event Registration
-```lua
-RGX:RegisterEvent("EVENT_NAME", callback, "UNIQUE_ID")
-RGX:UnregisterEvent("EVENT_NAME", "UNIQUE_ID")
-```
-
-### Timers
-```lua
--- One-shot timer
-RGX:After(seconds, callback)
-
--- Repeating timer
-RGX:Every(seconds, callback)
-
--- Cancel timer
-RGX:CancelTimer(timerHandle)
-```
-
-### Slash Commands
-```lua
-RGX:RegisterSlashCommand("command", callback, "ID")
--- Supports multiple aliases: {"cmd1", "cmd2"}
-```
-
-### Custom Messages
-```lua
--- Send
-RGX:SendMessage("MY_EVENT", arg1, arg2)
-
--- Receive
-RGX:RegisterMessage("MY_EVENT", callback, "ID")
-```
-
-## API Documentation
-
-See [RGX-Framework](https://github.com/yourusername/RGX-Framework) for full API documentation.
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ## Contributing
 
-This is a template repository. Feel free to fork and customize for your own addons!
-
-If you find issues with the RGX-Framework integration patterns, please open an issue.
+This is a template repository. Feel free to fork and customize for your own addons! If you find issues with the RGX-Framework integration patterns, please open an issue.

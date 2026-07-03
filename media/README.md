@@ -13,7 +13,7 @@ Place your addon's media files in this directory:
 Reference media files using the full path:
 
 ```lua
-local iconPath = "Interface\\AddOns\\HelloRGX\\media\\icon"
+local iconPath = "Interface\\AddOns\\RGX-Hello\\media\\icon"
 ```
 
 ## Creating Icons
@@ -21,7 +21,7 @@ local iconPath = "Interface\\AddOns\\HelloRGX\\media\\icon"
 1. Create a 32x32 or 64x64 image in your preferred editor
 2. Save as `.tga` with 32-bit color (RGBA)
 3. Place in this folder
-4. Reference in code: `"Interface\\AddOns\\HelloRGX\\media\\myicon.tga"`
+4. Reference in code: `"Interface\\AddOns\\RGX-Hello\\media\\myicon.tga"`
 
 ## Using SharedMedia
 
@@ -30,6 +30,6 @@ If RGX-Framework's SharedMedia module is available, you can register custom asse
 ```lua
 local SM = RGX:GetModule("sharedmedia")
 if SM then
-    SM:Register("background", "HelloRGX_BG", "Interface\\AddOns\\HelloRGX\\media\\background")
+    SM:Register("background", "RGXHello_BG", "Interface\\AddOns\\RGX-Hello\\media\\background")
 end
 ```

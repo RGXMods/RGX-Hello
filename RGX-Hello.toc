@@ -1,8 +1,8 @@
-## Interface: 120005
+## Interface: 120007
 ## Version: 1.0.0
 ## Title: RGX-Hello
-## Notes: Minimal RGX-Framework addon template.
-## Author: Your Name
+## Notes: The smallest complete RGX-Framework addon -- a reference/template for building on RGX.
+## Author: DonnieDice
 ## RequiredDeps: RGX-Framework
 ## SavedVariables: RGXHelloDB
 
