@@ -3,12 +3,23 @@
     xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 
     <!--
-        RGX-Hello — the whole addon is one file. That is the point: with
-        RGX-Framework's declarative RGXAddon front door, a real addon
-        (saved settings, options panel, slash command, minimap button,
-        event handling) does not need to be split across core/events/
-        commands/config files. See data/core.lua.
+        RGX-Hello serves two purposes in one install:
+
+        1. data/core.lua -- the reference/template addon. With RGX-Framework's
+           declarative RGXAddon front door, a real addon (saved settings,
+           options panel, slash command, minimap button, event handling)
+           fits in one file with no boilerplate. This is what to copy when
+           starting a new RGX-native addon.
+
+        2. data/visualtest.lua -- the visual QA harness for manually testing
+           RGX-Framework's UI controls in-game (color picker, toggles,
+           sliders, nested dropdowns, font/texture dropdowns). This is the
+           "manual" pattern -- hand-building an options panel with every
+           control type via RGX:GetUI() and friends, for people who need to
+           go beyond the declarative surface. /rgxvisual opens the full
+           tabbed panel, /rgxcolor opens the color picker directly.
     -->
     <Script file="data/core.lua"/>
+    <Script file="data/visualtest.lua"/>
 
 </Ui>

@@ -1,8 +1,9 @@
 # RGX-Hello
 
-The smallest complete [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) addon — a reference/template for building your own.
+Two things in one install:
 
-The whole addon is one file, `data/core.lua`, built entirely from the `RGXAddon` declarative front door. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate — RGX-Framework handles all of it.
+1. **A reference/template addon** ([RGX-Framework](https://github.com/DonnieDice/RGX-Framework)'s smallest complete addon) — `data/core.lua`, built entirely from the `RGXAddon` declarative front door. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate — RGX-Framework handles all of it.
+2. **RGX-Framework's visual QA harness** — `data/visualtest.lua`, a hand-built options panel exercising every control type (color picker, toggles, sliders, nested dropdowns, font/texture dropdowns) via the framework's manual API (`RGX:GetUI()`, `RGX:GetColorPicker()`, etc). Useful both as a dev tool for testing RGX-Framework itself, and as a second reference showing the "go beyond the declarative surface" pattern.
 
 ## What You Get
 
@@ -62,7 +63,13 @@ That single call gives you:
 
 ## Usage
 
-Type `/rgxhello` (or `/rgxhello volume`, etc.) in-game to open the options panel. On login, the addon prints a greeting to chat.
+| Command | Opens |
+|---------|-------|
+| `/rgxhello` | RGX-Hello's own options panel (from `data/core.lua`) |
+| `/rgxvisual` or `/rgxviz` | The full visual QA harness (Colors, Controls, Dropdowns, Media tabs) |
+| `/rgxcolor` or `/rgxcp` | The color picker directly |
+
+On login, the addon prints a greeting to chat.
 
 ## Using This As a Template
 
@@ -81,9 +88,10 @@ See [SUPER-SIMPLE.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs
 ```
 RGX-Hello/
 ├── RGX-Hello.toc      # Addon metadata
-├── RGX-Hello.xml      # Loads data/core.lua
+├── RGX-Hello.xml      # Loads data/core.lua and data/visualtest.lua
 ├── data/
-│   └── core.lua       # The entire addon
+│   ├── core.lua       # The reference addon (template starting point)
+│   └── visualtest.lua # The visual QA harness (/rgxvisual, /rgxcolor)
 └── media/
     └── icon.tga        # Minimap icon
 ```
