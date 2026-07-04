@@ -1,0 +1,44 @@
+name: CI
+
+# RGX-Hello is the reference addon AND rgx-mcp's real-world test fixture. This
+# gate runs on every push/PR: it clones RGX-Framework and runs the framework's
+# own tooling (Lua syntax gate + rgx-mcp end-to-end test) against THIS Hello
+# checkout, so a change to Hello that would break the framework's validation is
+# caught here, and the framework/Hello pair stays in lockstep.
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  FRAMEWORK_REPO: https://github.com/DonnieDice/RGX-Framework.git
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout RGX-Hello
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Clone RGX-Framework (for its CI tooling + rgx-mcp)
+        run: git clone --depth 1 "${FRAMEWORK_REPO}" "${RUNNER_TEMP}/RGX-Framework"
+
+      - name: Lua syntax gate (this Hello checkout)
+        working-directory: ${{ runner.temp }}/RGX-Framework/tools/ci
+        run: |
+          npm ci
+          node lua-syntax-check.mjs "${GITHUB_WORKSPACE}"
+
+      - name: rgx-mcp end-to-end vs this Hello checkout
+        working-directory: ${{ runner.temp }}/RGX-Framework/tools/rgx-mcp
+        run: |
+          npm ci
+          node test/test-rgx-hello.mjs "${GITHUB_WORKSPACE}"
