@@ -3,7 +3,7 @@
 ## Title: RGX-Hello
 ## Notes: The smallest complete RGX-Framework addon -- a reference/template for building on RGX, plus its visual QA harness (/rgxvisual, /rgxcolor).
 ## Author: DonnieDice
-## Category: RGX
+## Category: RGX-Mods
 ## RequiredDeps: RGX-Framework
 ## X-RGX-Framework-MinVersion: 2.4.1
 ## SavedVariables: RGXHelloDB, RGXVisualTestDB
