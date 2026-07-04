@@ -39,6 +39,7 @@ jobs:
 
       - name: rgx-mcp end-to-end vs this Hello checkout
         working-directory: ${{ runner.temp }}/RGX-Framework/tools/rgx-mcp
+        # rgx-mcp's lockfile is gitignored, so use npm install (not npm ci).
         run: |
-          npm ci
+          npm install --no-audit --no-fund
           node test/test-rgx-hello.mjs "${GITHUB_WORKSPACE}"
