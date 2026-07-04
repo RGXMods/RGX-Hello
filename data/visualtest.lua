@@ -2,9 +2,11 @@
 -- RGX Visual Test -- dev/debug visual QA harness for RGX-Framework, bundled into
 -- RGX-Hello. RGX-Hello now serves two purposes in one install: data/core.lua is
 -- the minimal declarative RGXAddon example, and this file is the manual/advanced
--- pattern -- hand-building a full options panel with every control type via
--- RGX:GetUI(), RGX:GetColorPicker(), RGX:GetDropdowns(), RGX:GetFonts(),
--- RGX:GetTextures(). Every API called below was verified against real
+-- pattern -- hand-building tab content with every control type via RGX:GetUI(),
+-- RGX:GetColorPicker(), RGX:GetDropdowns(), RGX:GetFonts(), RGX:GetTextures().
+-- Rather than open a second window, these test tabs are registered onto
+-- RGX-Hello's own options panel via RGX:AddOptionsTab, so /rgxhello and
+-- /rgxvisual open one shared panel. Every API called below was verified against real
 -- RGX-Framework source (modules/ui/controls.lua, modules/ui/options.lua,
 -- modules/colors/colorpicker.lua, modules/fonts/dropdowns.lua,
 -- modules/textures/textures.lua) before this file was written.
@@ -26,8 +28,6 @@ DB.enabled = DB.enabled ~= false
 DB.scale = DB.scale or 100
 DB.volume = DB.volume or "medium"
 DB.dropdownChoice = DB.dropdownChoice or "one"
-
-local panel
 
 local function Log(...)
     print("|cFF00A2FF[RGXVisual]|r", ...)
@@ -576,34 +576,34 @@ local function BuildSystemTab(frame)
     }))
 end
 
-local function BuildPanel()
-    local UI = R:GetUI()
-    panel = UI:CreateOptionsPanel({
-        addonName = "RGXVisualTest",
-        title = "RGX Visual Test",
-        subtitle = "Visual UI harness for RGX-Framework",
-        width = 820,
-        height = 640,
-        maxPerRow = 5,
-        tabs = {
-            { text = "Colors", content = BuildColorsTab },
-            { text = "Controls", content = BuildControlsTab },
-            { text = "Dropdowns", content = BuildDropdownsTab },
-            { text = "Media", content = BuildMediaTab },
-            { text = "Tooltip", content = BuildTooltipTab },
-            { text = "Auras", content = BuildAurasTab },
-            { text = "Minimap", content = BuildMinimapTab },
-            { text = "Design", content = BuildDesignTab },
-            { text = "System", content = BuildSystemTab },
-        },
-    })
+-- Register every test tab onto RGX-Hello's own options panel (the one built by
+-- data/core.lua's RGXAddon declaration). This runs at file-parse time -- before
+-- RGX-Hello's ADDON_LOADED builds the panel -- so /rgxhello and /rgxvisual open
+-- ONE shared window instead of two separate panels. The geometry hints size the
+-- merged panel for the full suite without core.lua having to know it exists.
+local TEST_TABS = {
+    { text = "Colors",    content = BuildColorsTab },
+    { text = "Controls",  content = BuildControlsTab },
+    { text = "Dropdowns", content = BuildDropdownsTab },
+    { text = "Media",     content = BuildMediaTab },
+    { text = "Tooltip",   content = BuildTooltipTab },
+    { text = "Auras",     content = BuildAurasTab },
+    { text = "Minimap",   content = BuildMinimapTab },
+    { text = "Design",    content = BuildDesignTab },
+    { text = "System",    content = BuildSystemTab },
+}
+for _, t in ipairs(TEST_TABS) do
+    R:AddOptionsTab("RGX-Hello", t.text, t.content, { width = 820, height = 640, maxPerRow = 5 })
 end
 
 local function OpenPanel()
-    if not panel then
-        BuildPanel()
+    local a = R:GetAddon("RGX-Hello")
+    if a and a.panel then
+        a.panel:Open()
+        if a.panel.SelectTabByName then a.panel:SelectTabByName("Colors") end
+    else
+        Log("RGX-Hello panel not ready -- is RGX-Hello's core.lua loaded?")
     end
-    panel:Open()
 end
 
 R:OnReady(function()
