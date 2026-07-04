@@ -119,6 +119,19 @@ local function BuildColorsTab(frame)
     })
     add(accent)
 
+    add(UI:CreateLabel(frame, { text = "Embedded color-picker card (UI:CreateColorPickerCard):", size = "small", color = "muted" }), 4)
+    local card = UI:CreateColorPickerCard(frame, {
+        key = "cardColor",
+        storage = DB,
+        default = { r = 0.35, g = 0.75, b = 0.51 },
+        width = 220,
+        onChange = function(r, g, b)
+            preview:SetColor(r, g, b)
+            Log("Embedded card changed", string.format("%.2f %.2f %.2f", r, g, b))
+        end,
+    })
+    add(card, 18)
+
     local direct = UI:CreateButton(frame, "Open ColorPicker Directly", 210, 24)
     direct:SetScript("OnClick", function()
         CP:Show(DB.primary, function(r, g, b)
