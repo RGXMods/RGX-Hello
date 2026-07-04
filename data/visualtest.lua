@@ -241,6 +241,11 @@ local function BuildMediaTab(frame)
     }))
 
     local sample = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    -- Constrain + wrap so long preview text stays inside the panel instead of
+    -- bleeding past its right edge.
+    sample:SetWidth(340)
+    sample:SetWordWrap(true)
+    sample:SetJustifyH("LEFT")
     sample:SetText("Font preview: The quick brown fox jumps over RGX.")
     add(sample, 18)
 
@@ -249,11 +254,12 @@ local function BuildMediaTab(frame)
         width = 320,
         buttonWidth = 230,
         value = DB.fontName or Fonts:GetDefault(),
-        onChange = function(name, path)
+        onChange = function(name)
             DB.fontName = name
-            if path then
-                sample:SetFont(path, 18, "OUTLINE")
-            end
+            -- Dogfood RGX:Font -- it resolves name->path with a FRIZQT fallback,
+            -- so the preview always restyles even when a font has no direct path
+            -- (the raw SetFont(path,...) here failed silently on those).
+            R:Font(sample, name, 18, "OUTLINE")
             Log("Font selected", tostring(name))
         end,
     })
