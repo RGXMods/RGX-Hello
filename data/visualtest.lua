@@ -293,6 +293,283 @@ local function BuildMediaTab(frame)
     }))
 end
 
+local function BuildTooltipTab(frame)
+    local UI = R:GetUI()
+    local Tip = R:GetTooltip()
+    local add = Place(frame)
+
+    add(UI:CreateLabel(frame, {
+        text = "RGXTooltip Visual Test",
+        size = "large",
+        color = "accent",
+    }))
+
+    -- Tip:Attach — one call wires OnEnter/OnLeave; builder runs at hover time
+    local attached = UI:CreateButton(frame, "Hover Me (Tip:Attach)", 220, 26)
+    Tip:Attach(attached, function()
+        return {
+            title = "Attached Tooltip",
+            lines = {
+                "Plain string line (wraps by default).",
+                { "Double line left", "right value" },
+                { text = "Colored line", r = 1, g = 0.4, b = 0.4 },
+                { text = "This long wrapped line demonstrates that wrap = true keeps composed tooltip text inside the tooltip's own bounds instead of stretching it.", wrap = true },
+            },
+        }
+    end)
+    add(attached)
+
+    -- Manual Show/Hide — the raw pair Attach wraps
+    local manual = UI:CreateButton(frame, "Hover Me (manual Show/Hide)", 220, 26)
+    manual:SetScript("OnEnter", function(self)
+        Tip:Show(self, { anchor = "ANCHOR_TOP", title = "Manual Tooltip", lines = { "Shown via Tip:Show, hidden via Tip:Hide." } })
+    end)
+    manual:SetScript("OnLeave", function() Tip:Hide() end)
+    add(manual)
+
+    -- HookNative — one-shot by design: the framework keeps one Blizzard
+    -- registration per type forever, and callbacks cannot be unregistered.
+    local hookRegistered = false
+    local hookBtn = UI:CreateButton(frame, "Register item HookNative", 220, 26)
+    hookBtn:SetScript("OnClick", function()
+        if hookRegistered then
+            Log("HookNative already registered -- hover any item tooltip to see the injected line")
+            return
+        end
+        hookRegistered = Tip:HookNative("item", function(tooltip)
+            tooltip:AddLine("|cff58be81RGX HookNative:|r injected by /rgxvisual", 1, 1, 1)
+        end)
+        Log(hookRegistered and "HookNative(item) registered -- hover any item in your bags"
+            or "HookNative(item) registration FAILED")
+    end)
+    add(hookBtn)
+
+    add(UI:CreateLabel(frame, {
+        text = "What to test: hover both buttons (title, double line, colored line, wrapped line, ANCHOR_TOP placement), then register the item hook and hover a bag item -- the green injected line should appear and persist for the session without breaking other tooltips.",
+        size = "small",
+        color = "muted",
+        width = 340,
+    }))
+end
+
+local function BuildAurasTab(frame)
+    local UI = R:GetUI()
+    local Auras = R:GetAuras()
+    local add = Place(frame)
+
+    add(UI:CreateLabel(frame, {
+        text = "RGXAuras Visual Test",
+        size = "large",
+        color = "accent",
+    }))
+
+    local result = UI:CreateLabel(frame, { text = "No scan yet.", size = "small", color = "normal", width = 340 })
+
+    local scanBtn = UI:CreateButton(frame, "Scan Player Auras (IterateAuras)", 240, 26)
+    scanBtn:SetScript("OnClick", function()
+        local names, total = {}, 0
+        Auras:IterateAuras("player", "HELPFUL", function(auraData)
+            total = total + 1
+            if #names < 5 then
+                local ok, name = pcall(function() return auraData.name end)
+                names[#names + 1] = (ok and name) or "?"
+            end
+        end)
+        result:SetText(total == 0 and "No HELPFUL auras on player."
+            or string.format("%d HELPFUL aura(s): %s%s", total, table.concat(names, ", "), total > 5 and ", ..." or ""))
+        Log("Aura scan complete:", total, "helpful aura(s)")
+    end)
+    add(scanBtn)
+    add(result, 16)
+
+    -- Live watch: player is watched by Auras:Init, but WatchUnit is idempotent
+    -- so calling it again is safe if module init ordering ever changes.
+    local unsubApplied, unsubRemoved
+    local watchBtn = UI:CreateButton(frame, "Start Live Aura Log", 240, 26)
+    watchBtn:SetScript("OnClick", function()
+        if unsubApplied then
+            unsubApplied(); unsubRemoved()
+            unsubApplied, unsubRemoved = nil, nil
+            Log("Live aura log STOPPED")
+            return
+        end
+        Auras:WatchUnit("player")
+        unsubApplied = Auras:OnApplied(function(unit, auraData)
+            if unit ~= "player" then return end
+            local ok, name = pcall(function() return auraData.name end)
+            Log("Aura APPLIED:", (ok and name) or "?")
+        end)
+        unsubRemoved = Auras:OnRemoved(function(unit, instanceID)
+            if unit ~= "player" then return end
+            Log("Aura REMOVED: instance", instanceID)
+        end)
+        Log("Live aura log STARTED -- buff/debuff yourself (eat food, mount up) and watch chat. Click again to stop.")
+    end)
+    add(watchBtn)
+
+    add(UI:CreateLabel(frame, {
+        text = "What to test: scan lists your current buffs; live log prints APPLIED/REMOVED lines in chat as auras change (eat food, mount, cancel a buff). Unsubscribe (second click) must stop the chat lines.",
+        size = "small",
+        color = "muted",
+        width = 340,
+    }))
+end
+
+local function BuildMinimapTab(frame)
+    local UI = R:GetUI()
+    local MM = R:GetMinimap()
+    local add = Place(frame)
+
+    add(UI:CreateLabel(frame, {
+        text = "RGXMinimap Visual Test",
+        size = "large",
+        color = "accent",
+    }))
+
+    local testBtn
+    local createBtn = UI:CreateButton(frame, "Create Minimap Button", 220, 26)
+    createBtn:SetScript("OnClick", function()
+        if testBtn then
+            Log("Minimap test button already exists -- use Toggle")
+            return
+        end
+        testBtn = MM:Create({
+            name         = "RGXVisualTestMinimapButton",
+            icon         = "Interface\\AddOns\\RGX-Hello\\media\\icon.tga",
+            defaultAngle = 200,
+            storage      = DB,
+            tooltip = {
+                title = "|cff58be81RGX Visual Test|r",
+                lines = {
+                    { left = "|cff58be81Left-Click|r", right = "Log a click" },
+                    { left = "|cff4ecdc4Drag|r",       right = "Move around minimap" },
+                },
+            },
+            onLeftClick = function() Log("Minimap test button left-clicked") end,
+        })
+        Log(testBtn and "Minimap button created at angle 200 -- drag it, hover it, click it"
+            or "Minimap button creation FAILED")
+    end)
+    add(createBtn)
+
+    local toggleBtn = UI:CreateButton(frame, "Toggle Visibility", 220, 26)
+    toggleBtn:SetScript("OnClick", function()
+        if not testBtn then
+            Log("Create the minimap button first")
+            return
+        end
+        testBtn:Toggle()
+        Log("Minimap button now", testBtn:IsShown() and "SHOWN at angle " .. math.floor(testBtn:GetAngle() or 0) or "HIDDEN")
+    end)
+    add(toggleBtn)
+
+    add(UI:CreateLabel(frame, {
+        text = "What to test: create the button, hover for its tooltip, left-click (chat line), drag it around the minimap ring, toggle it off/on, then /reload -- the dragged angle must persist (saved to RGXVisualTestDB).",
+        size = "small",
+        color = "muted",
+        width = 340,
+    }))
+end
+
+local function BuildDesignTab(frame)
+    local UI = R:GetUI()
+    local D = R:GetDesign()
+    local add = Place(frame)
+
+    add(UI:CreateLabel(frame, {
+        text = "RGXDesign + RGX:Font Visual Test",
+        size = "large",
+        color = "accent",
+    }))
+
+    -- RGX:Font -- the one-call font application shipped in v2.3.0
+    local sample = frame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    sample:SetText("RGX:Font sample -- click a button below to restyle me.")
+    add(sample, 14)
+
+    local fontDefault = UI:CreateButton(frame, "RGX:Font(defaults)", 160, 24)
+    fontDefault:SetScript("OnClick", function()
+        R:Font(sample)
+        Log("Applied framework default font/size/flags")
+    end)
+    add(fontDefault, 6)
+
+    local fontNamed = UI:CreateButton(frame, 'RGX:Font("Inter-Regular", 16, OUTLINE)', 260, 24)
+    fontNamed:SetScript("OnClick", function()
+        R:Font(sample, "Inter-Regular", 16, "OUTLINE")
+        Log("Applied Inter-Regular 16 OUTLINE")
+    end)
+    add(fontNamed, 14)
+
+    -- Design primitives
+    local header = D:CreateSectionHeader(frame, "Design:CreateSectionHeader")
+    header:SetWidth(340)
+    add(header, 8)
+
+    local divider = D:CreateDivider(frame)
+    divider:SetWidth(340)
+    add(divider, 10)
+
+    local dBtn = D:CreateButton(frame, "Design:CreateButton", 180, 24,
+        "Design Button", "Hover styling comes from RGXDesign theme tokens (primary color border/text).")
+    add(dBtn, 14)
+
+    add(UI:CreateLabel(frame, {
+        text = "What to test: both font buttons visibly restyle the sample text; the section header shows the theme's primary color; the design button's border and label turn primary-colored on hover and show its tooltip.",
+        size = "small",
+        color = "muted",
+        width = 340,
+    }))
+end
+
+local function BuildSystemTab(frame)
+    local UI = R:GetUI()
+    local add = Place(frame)
+
+    add(UI:CreateLabel(frame, {
+        text = "Timers Visual Test (RGX:After / RGX:Every)",
+        size = "large",
+        color = "accent",
+    }))
+
+    local afterBtn = UI:CreateButton(frame, "Fire RGX:After(2s)", 200, 26)
+    afterBtn:SetScript("OnClick", function()
+        Log("After(2) armed...")
+        R:After(2, function() Log("After(2) FIRED") end, "RGXVT_AFTER")
+    end)
+    add(afterBtn)
+
+    local tickCount = 0
+    local ticker
+    local tickLabel = UI:CreateLabel(frame, { text = "Ticker: not running", size = "small", color = "normal" })
+    local everyBtn = UI:CreateButton(frame, "Start/Stop RGX:Every(1s)", 200, 26)
+    everyBtn:SetScript("OnClick", function()
+        if ticker then
+            R:CancelTimer(ticker)
+            ticker = nil
+            tickLabel:SetText("Ticker: stopped at " .. tickCount)
+            Log("Every(1) cancelled at tick", tickCount)
+            return
+        end
+        tickCount = 0
+        ticker = R:Every(1, function()
+            tickCount = tickCount + 1
+            tickLabel:SetText("Ticker: " .. tickCount)
+        end, "RGXVT_EVERY")
+        tickLabel:SetText("Ticker: running")
+        Log("Every(1) started")
+    end)
+    add(everyBtn, 8)
+    add(tickLabel, 16)
+
+    add(UI:CreateLabel(frame, {
+        text = "What to test: After fires exactly once ~2s after the click; Every increments the counter each second; Stop must freeze the counter immediately (CancelTimer). Sound is intentionally not tested here -- BLU exercises the sound registry in production.",
+        size = "small",
+        color = "muted",
+        width = 340,
+    }))
+end
+
 local function BuildPanel()
     local UI = R:GetUI()
     panel = UI:CreateOptionsPanel({
@@ -307,6 +584,11 @@ local function BuildPanel()
             { text = "Controls", content = BuildControlsTab },
             { text = "Dropdowns", content = BuildDropdownsTab },
             { text = "Media", content = BuildMediaTab },
+            { text = "Tooltip", content = BuildTooltipTab },
+            { text = "Auras", content = BuildAurasTab },
+            { text = "Minimap", content = BuildMinimapTab },
+            { text = "Design", content = BuildDesignTab },
+            { text = "System", content = BuildSystemTab },
         },
     })
 end

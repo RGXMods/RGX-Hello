@@ -18,4 +18,5 @@ manual-changelog:
 ignore:
   - .gitignore
   - README.md
+  - media/README.md
   - docs

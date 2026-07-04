@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.2.0](changelogs/1.2.0.md) - 2026-07-04
+
+- **Five new test tabs** — the suite now covers every user-facing framework module: Tooltip (`Tip:Attach`/`Show`/`Hide`/`HookNative`), Auras (`IterateAuras` scan + live `OnApplied`/`OnRemoved` chat log with unsubscribe), Minimap (`MM:Create` with drag/tooltip/persistent angle, `Toggle`), Design (`RGX:Font` one-call styling + `RGXDesign` primitives), and System (`RGX:After`/`Every`/`CancelTimer`). Every API call verified against framework source before writing.
+- Sound intentionally stays untested here: the sound module is a per-addon registry that BLU exercises in production.
+- `media/README.md` no longer leaks into the packaged zip.
+
 ## [v1.1.1](changelogs/1.1.1.md) - 2026-07-03
 
 - Added `.pkgmeta` — the packaged zip's `CHANGELOG.md` was being auto-generated from raw git commit messages; it now uses this curated changelog, and `docs/`/`README.md` no longer leak into the player zip.

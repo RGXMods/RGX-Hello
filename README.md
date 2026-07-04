@@ -64,8 +64,13 @@ Current coverage:
 | Controls | `UI:CreateToggle`, `UI:CreateSlider`, `UI:CreateVolumeSlider`, reset buttons, label word-wrap |
 | Dropdowns | `RGXDropdowns:CreateNestedDropdown` (groups, separators, checked state) |
 | Media | `RGXFonts` font dropdown, `RGXTextures` statusbar textures |
+| Tooltip | `RGXTooltip` — `Tip:Attach` builder, manual `Show`/`Hide`, `HookNative("item")` injection |
+| Auras | `RGXAuras` — `IterateAuras` scan, `WatchUnit` + `OnApplied`/`OnRemoved` live log with unsubscribe |
+| Minimap | `RGXMinimap` — `MM:Create` (icon, tooltip, drag, persistent angle), `Toggle`/`IsShown` |
+| Design | `RGX:Font` one-call styling, `RGXDesign` `CreateButton`/`CreateSectionHeader`/`CreateDivider`, theme tokens |
+| System | `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |
 
-Not yet covered (the suite should grow to match the framework): `RGXTooltip`, `RGXAuras`, minimap button API, `RGX:Font`, `RGXDesign` primitives, sound/registry, timers. Adding a tab per module is the standing pattern — when a framework module ships or changes, its test tab lands here in the same cycle.
+Sound is intentionally untested here — the sound module is a per-addon registry that [BLU](https://github.com/DonnieDice/BLU) exercises in production, which is a more honest test than a synthetic registration. Standing pattern: when a framework module ships or changes, its test tab lands here in the same cycle.
 
 ## Installation
 
