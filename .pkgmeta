@@ -1,0 +1,21 @@
+# RGX-Hello Package Metadata
+# Used by BigWigsMods packager (GitHub Actions release workflow)
+
+package-as: RGX-Hello
+
+license: LICENSE
+
+# Without manual-changelog the packager auto-generates CHANGELOG.md from raw
+# git commit messages, which is what ends up in the player-facing zip. Point
+# it at the curated changelog instead (same pattern as RGX-Framework).
+manual-changelog:
+  filename: docs/CHANGES.md
+  markup-type: markdown
+
+# NOTE: directory entries must NOT have a trailing slash -- the packager's
+# matcher treats "docs/" and "docs" differently, and the slash form silently
+# fails (verified against RGX-Framework's v2.2.0 zip leak).
+ignore:
+  - .gitignore
+  - README.md
+  - docs

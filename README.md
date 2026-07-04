@@ -1,11 +1,20 @@
 # RGX-Hello
 
-Two things in one install:
+The [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) reference addon **and** its in-game testing suite, in one install. It exists for two audiences at once:
 
-1. **A reference/template addon** ([RGX-Framework](https://github.com/DonnieDice/RGX-Framework)'s smallest complete addon) — `data/core.lua`, built entirely from the `RGXAddon` declarative front door. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate — RGX-Framework handles all of it.
-2. **RGX-Framework's visual QA harness** — `data/visualtest.lua`, a hand-built options panel exercising every control type (color picker, toggles, sliders, nested dropdowns, font/texture dropdowns) via the framework's manual API (`RGX:GetUI()`, `RGX:GetColorPicker()`, etc). Useful both as a dev tool for testing RGX-Framework itself, and as a second reference showing the "go beyond the declarative surface" pattern.
+- **Addon developers** — `data/core.lua` is the canonical "hello world": the smallest complete RGX addon, written in the declarative `RGXAddon` style you should copy when starting your own.
+- **Framework development** — `data/visualtest.lua` is the visual QA harness used to test RGX-Framework's features in-game before releases. As the framework grows, this suite grows with it; the goal is coverage of **every** framework feature.
 
-## What You Get
+## Built with rgx-mcp
+
+RGX-Framework ships an MCP server (`tools/rgx-mcp/`, included in the framework's packaged zip) that validates, audits, and generates declarative RGX addons against the framework's frozen Simplicity Contract. RGX-Hello is wired into it in both directions:
+
+- `rgx_generate_addon` can reproduce `data/core.lua`'s structure from a short spec — the hand-written file and the generator's output are kept convergent.
+- The framework's end-to-end test (`tools/rgx-mcp/test/test-rgx-hello.mjs`) runs the real MCP server against **this repo**: it validates `core.lua`'s opts table against the schema and audits every Lua file here for unsafe patterns. If this repo drifts from the contract, the framework's own test fails.
+
+That loop has already paid off: its first run caught a framework bug (the declarative slider's `suffix` was silently dropped — this addon's own Volume slider shipped without its "%" until RGX-Framework v2.4.1 fixed it).
+
+## The Hello World (`data/core.lua`)
 
 ```lua
 RGXAddon "RGX-Hello" {
@@ -35,65 +44,58 @@ RGXAddon "RGX-Hello" {
 }
 ```
 
-That single call gives you:
+That single call gives you saved settings with automatic persistence, a tabbed options panel with db-bound controls, a slash command, a minimap button, branded chat output, and taint-safe event registration. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
 
-- saved settings with automatic persistence (`db`)
-- a tabbed options panel with db-bound controls that save and restore their visual state correctly (`options`)
-- a slash command whose default handler opens that panel (`slash`)
-- a minimap button (`minimap`)
-- branded chat output (`welcome`, `self:Print`)
-- scoped event registration, routed through the framework's taint-safe paths (`onInit`)
+## The Testing Suite (`data/visualtest.lua`)
 
-## Installation
-
-### Requirements
-
-- World of Warcraft (Retail) — version matching `## Interface:` in `RGX-Hello.toc`
-- [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) must be installed
-
-### Installing This Addon
-
-1. Download or clone this repository
-2. Copy the `RGX-Hello` folder to your WoW AddOns directory:
-   ```
-   World of Warcraft\_retail_\Interface\AddOns\
-   ```
-3. Restart WoW or run `/reload`
-4. Enable both "RGX-Framework" and "RGX-Hello" in the AddOns list
-
-## Usage
+A hand-built options panel exercising the framework's manual API (`RGX:GetUI()`, `RGX:GetColorPicker()`, `RGX:GetDropdowns()`, `RGX:GetFonts()`, `RGX:GetTextures()`) — this is also the reference for going *beyond* the declarative surface.
 
 | Command | Opens |
 |---------|-------|
-| `/rgxhello` | RGX-Hello's own options panel (from `data/core.lua`) |
-| `/rgxvisual` or `/rgxviz` | The full visual QA harness (Colors, Controls, Dropdowns, Media tabs) |
+| `/rgxhello` | RGX-Hello's own options panel (the hello-world addon) |
+| `/rgxvisual` or `/rgxviz` | The full test suite (tabs below) |
 | `/rgxcolor` or `/rgxcp` | The color picker directly |
 
-On login, the addon prints a greeting to chat.
+Current coverage:
+
+| Tab | Framework features exercised |
+|-----|------------------------------|
+| Colors | `RGXColorPicker` (SV box, hue bar, HEX/RGB inputs, presets, OK/Cancel), `UI:CreateColorPicker` swatches + Reset |
+| Controls | `UI:CreateToggle`, `UI:CreateSlider`, `UI:CreateVolumeSlider`, reset buttons, label word-wrap |
+| Dropdowns | `RGXDropdowns:CreateNestedDropdown` (groups, separators, checked state) |
+| Media | `RGXFonts` font dropdown, `RGXTextures` statusbar textures |
+
+Not yet covered (the suite should grow to match the framework): `RGXTooltip`, `RGXAuras`, minimap button API, `RGX:Font`, `RGXDesign` primitives, sound/registry, timers. Adding a tab per module is the standing pattern — when a framework module ships or changes, its test tab lands here in the same cycle.
+
+## Installation
+
+1. Install [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) (required dependency, v2.4.1+).
+2. Copy the `RGX-Hello` folder to `World of Warcraft\_retail_\Interface\AddOns\`.
+3. `/reload` or restart, and enable both addons.
 
 ## Using This As a Template
 
-1. Rename the folder, `RGX-Hello.toc`, and `RGX-Hello.xml` to your addon's name.
+1. Copy the repo; rename the folder, `RGX-Hello.toc`, and `RGX-Hello.xml` to your addon's name.
 2. Edit the TOC header (`Title`, `Notes`, `Author`, `SavedVariables`).
-3. Edit the `RGXAddon "..." { }` call in `data/core.lua`:
-   - `db` — your saved settings and their defaults
-   - `options` — your options panel tabs and controls
-   - `onInit` — your addon's actual behavior (events, timers, UI)
-4. Replace `media/icon.tga` with your own minimap icon, or drop the `minimap` key entirely if you don't want one.
+3. Edit the `RGXAddon "..." { }` call in `data/core.lua` — `db` for settings, `options` for the panel, `onInit` for behavior.
+4. Delete `data/visualtest.lua` (and its TOC/XML lines) — it tests the framework, not your addon.
+5. Replace `media/icon.tga`, or drop the `minimap` key.
 
-See [SUPER-SIMPLE.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/SUPER-SIMPLE.md) and [API.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/API.md) in RGX-Framework for the full declarative surface (more control types, `RGX:Font`, dropdowns, tooltips, etc).
+For the full declarative surface see the framework's [DECLARATIVE-API.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/DECLARATIVE-API.md), [SUPER-SIMPLE.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/SUPER-SIMPLE.md), and [API.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/API.md).
 
 ## Project Structure
 
 ```
 RGX-Hello/
 ├── RGX-Hello.toc      # Addon metadata
-├── RGX-Hello.xml      # Loads data/core.lua and data/visualtest.lua
+├── RGX-Hello.xml      # Loads both files below
 ├── data/
-│   ├── core.lua       # The reference addon (template starting point)
-│   └── visualtest.lua # The visual QA harness (/rgxvisual, /rgxcolor)
-└── media/
-    └── icon.tga        # Minimap icon
+│   ├── core.lua       # The hello-world reference addon
+│   └── visualtest.lua # The framework testing suite (/rgxvisual)
+├── media/
+│   └── icon.tga        # Minimap icon
+└── docs/
+    └── CHANGES.md      # Curated changelog (packaged as CHANGELOG.md)
 ```
 
 ## License
@@ -102,4 +104,4 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 ## Contributing
 
-This is a template repository. Feel free to fork and customize for your own addons! If you find issues with the RGX-Framework integration patterns, please open an issue.
+Template forks welcome. If you find issues with the RGX-Framework integration patterns, please open an issue.
