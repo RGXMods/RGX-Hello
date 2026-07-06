@@ -606,7 +606,7 @@ local TEST_TABS = {
     { text = "System",    content = BuildSystemTab },
 }
 for _, t in ipairs(TEST_TABS) do
-    R:AddOptionsTab("RGX-Hello", t.text, t.content, { width = 820, height = 640, maxPerRow = 5 })
+    R:AddOptionsTab("RGX-Hello", t.text, t.content, { width = 820, height = 720, maxPerRow = 5 })
 end
 
 local function OpenPanel()
