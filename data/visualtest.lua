@@ -269,10 +269,14 @@ local function BuildMediaTab(frame)
         value = DB.fontName or Fonts:GetDefault(),
         onChange = function(name)
             DB.fontName = name
-            -- Dogfood RGX:Font -- it resolves name->path with a FRIZQT fallback,
-            -- so the preview always restyles even when a font has no direct path
-            -- (the raw SetFont(path,...) here failed silently on those).
             R:Font(sample, name, 18, "OUTLINE")
+            
+            -- User specifically expects this to restyle the entire RGX-Hello panel
+            local helloAddon = R:GetAddon("RGX-Hello")
+            if helloAddon and helloAddon.panel then
+                Fonts:ChangeFontFamily(helloAddon.panel, name)
+            end
+            
             Log("Font selected", tostring(name))
         end,
     })
