@@ -277,6 +277,9 @@ local function BuildMediaTab(frame)
                 Fonts:ChangeFontFamily(helloAddon.panel, name)
             end
             
+            -- Update the framework's default font so newly built tabs and future UI also use it
+            Fonts:SetDefault(name)
+            
             Log("Font selected", tostring(name))
         end,
     })
