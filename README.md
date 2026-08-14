@@ -7,7 +7,7 @@ The [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) reference addon
 
 ## Built with rgx-mcp
 
-RGX-Framework maintains an MCP server at `tools/rgx-mcp/` that validates, audits, and generates declarative RGX addons against the framework's frozen Simplicity Contract. It is developer tooling and is excluded from the WoW player zip. RGX-Hello is wired into it in both directions:
+RGX-Framework temporarily maintains an MCP server at `tools/rgx-mcp/` as a source-tree contract-conformance fixture. It is excluded from published runtime and contract SDK artifacts; public API/MCP/editor tooling belongs to RGX Studio after gate #30. RGX-Hello remains wired into the transition fixture in both directions:
 
 - `rgx_generate_addon` can reproduce `data/core.lua`'s structure from a short spec — the hand-written file and the generator's output are kept convergent.
 - The framework's end-to-end test (`tools/rgx-mcp/test/test-rgx-hello.mjs`) runs the real MCP server against **this repo**: it validates `core.lua`'s opts table against the schema and audits every Lua file here for unsafe patterns. If this repo drifts from the contract, the framework's own test fails.
