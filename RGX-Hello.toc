@@ -8,6 +8,7 @@
 ## RequiredDeps: RGX-Framework
 ## X-RGX-Framework-MinVersion: 2.4.1
 ## SavedVariables: RGXHelloDB, RGXVisualTestDB
+## IconTexture: Interface\AddOns\RGX-Framework\media\logo.tga
 
 data/core.lua
 data/visualtest.lua
