@@ -7,7 +7,7 @@ The [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) reference addon
 
 ## Built with rgx-mcp
 
-RGX-Framework temporarily maintains an MCP server at `tools/rgx-mcp/` as a source-tree contract-conformance fixture. It is excluded from published runtime and contract SDK artifacts; public API/MCP/editor tooling belongs to RGX Studio after gate #30. RGX-Hello remains wired into the transition fixture in both directions:
+RGX-Framework temporarily maintains an MCP server at `tools/rgx-mcp/` as a source-tree contract-conformance fixture. It is excluded from the published Framework addon; public API/MCP/editor tooling belongs to RGX Studio. RGX-Hello remains wired into the transition fixture in both directions:
 
 - `rgx_generate_addon` can reproduce `data/core.lua`'s structure from a short spec — the hand-written file and the generator's output are kept convergent.
 - The framework's end-to-end test (`tools/rgx-mcp/test/test-rgx-hello.mjs`) runs the real MCP server against **this repo**: it validates `core.lua`'s opts table against the schema and audits every Lua file here for unsafe patterns. If this repo drifts from the contract, the framework's own test fails.
@@ -34,26 +34,22 @@ RGXAddon "RGX-Hello" {
         },
     },
 
-    on = {
-        login = function(self)
-            self:Print("Hello from RGX-Hello!")
-        end,
-    },
-
-    every = {
-        heartbeat = { 1, function(self, timer)
+    onInit = function(self)
+        self:Print("Hello from RGX-Hello!")
+        self.heartbeatTimer = self:Every(1, function(timer)
             self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
             if self.heartbeatTicks >= 3 then
                 self:CancelTimer(timer)
+                self.heartbeatTimer = nil
             end
-        end },
-    },
+        end, "RGX-Hello:heartbeat")
+    end,
 
     welcome = "loaded -- /rgxhello for options",
 }
 ```
 
-That single call gives you saved settings with automatic persistence, a tabbed options panel with db-bound controls, a slash command, a minimap button, branded chat output, human triggers, and owner-scoped named timers. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
+That single call gives you saved settings with automatic persistence, a tabbed options panel with db-bound controls, a slash command, a minimap button, branded chat output, and framework-scoped startup/timer logic. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
 
 ## The Testing Suite (`data/visualtest.lua`)
 
@@ -77,7 +73,7 @@ Current coverage:
 | Auras | `RGXAuras` — `IterateAuras` scan, `WatchUnit` + `OnApplied`/`OnRemoved` live log with unsubscribe |
 | Minimap | `RGXMinimap` — `MM:Create` (icon, tooltip, drag, persistent angle), `Toggle`/`IsShown` |
 | Design | `RGX:Font` one-call styling, `RGXDesign` `CreateButton`/`CreateSectionHeader`/`CreateDivider`, theme tokens |
-| System | declarative `every`, `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |
+| System | reference-addon heartbeat via `addon:Every`, `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |
 
 Sound is intentionally untested here — the sound module is a per-addon registry that [BLU](https://github.com/DonnieDice/BLU) exercises in production, which is a more honest test than a synthetic registration. Standing pattern: when a framework module ships or changes, its test tab lands here in the same cycle.
 

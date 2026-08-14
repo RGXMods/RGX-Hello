@@ -2,10 +2,9 @@
 
 ## Current Development
 
-- The canonical addon now exercises shipped human `on` triggers directly
-  instead of registering `PLAYER_LOGIN` imperatively in `onInit`.
-- Added declarative `every.heartbeat`, which ticks three times and cancels
-  itself. The System tab displays its result for in-game lifecycle verification.
+- The canonical addon uses the shipped `onInit` and `addon:Every` APIs for its
+  three-tick heartbeat while declarative `on`/`every` remain future forms.
+- The System tab displays the heartbeat result for in-game timer verification.
 - Updated MCP distribution wording: Node tooling is maintained with the
   framework source but excluded from the WoW player archive.
 

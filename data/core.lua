@@ -13,8 +13,8 @@
 --   - a slash command whose default handler opens that panel (slash)
 --   - a minimap button (minimap)
 --   - branded chat output (welcome, self:Print)
---   - human event triggers and named repeating timers routed through RGX
---     paths -- never a manual event frame or C_Timer (on, every)
+--   - startup and repeating timer logic routed through RGX paths -- never a
+--     manual event frame or C_Timer (onInit, self:Every)
 --=====================================================================================
 
 RGXAddon "RGX-Hello" {
@@ -34,20 +34,16 @@ RGXAddon "RGX-Hello" {
         },
     },
 
-    on = {
-        login = function(self)
-            self:Print("Hello from RGX-Hello!")
-        end,
-    },
-
-    every = {
-        heartbeat = { 1, function(self, timer)
+    onInit = function(self)
+        self:Print("Hello from RGX-Hello!")
+        self.heartbeatTimer = self:Every(1, function(timer)
             self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
             if self.heartbeatTicks >= 3 then
                 self:CancelTimer(timer)
+                self.heartbeatTimer = nil
             end
-        end },
-    },
+        end, "RGX-Hello:heartbeat")
+    end,
 
     welcome = "loaded -- /rgxhello for options",
 }

@@ -1,5 +1,5 @@
 ## Interface: 40402
-## Version: 1.2.0
+## Version: 1.2.1
 ## Title: RGX-Hello
 ## Notes: RGX-Framework reference and compatibility test addon
 ## Author: DonnieDice
