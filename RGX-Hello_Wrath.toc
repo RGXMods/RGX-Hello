@@ -1,12 +1,12 @@
 ## Interface: 38002
-## Version: 1.2.1
+## Version: 1.3.0
 ## Title: RGX-Hello
 ## Notes: RGX-Framework reference and compatibility test addon
 ## Author: DonnieDice
 ## Category: RGX
 ## Group: RGX
 ## RequiredDeps: RGX-Framework
-## X-RGX-Framework-MinVersion: 2.6.0
+## X-RGX-Framework-MinVersion: 2.7.0
 ## SavedVariables: RGXHelloDB, RGXVisualTestDB
 ## IconTexture: Interface\AddOns\RGX-Framework\media\logo.tga
 

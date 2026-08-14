@@ -14,7 +14,7 @@
 --   - a minimap button (minimap)
 --   - branded chat output (welcome, self:Print)
 --   - startup and repeating timer logic routed through RGX paths -- never a
---     manual event frame or C_Timer (onInit, self:Every)
+--     manual event frame or C_Timer (onInit, declarative every)
 --=====================================================================================
 
 RGXAddon "RGX-Hello" {
@@ -27,6 +27,15 @@ RGXAddon "RGX-Hello" {
         volume = 50,
     },
 
+    every = {
+        heartbeat = { 1, function(self, timer)
+            self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
+            if self.heartbeatTicks >= 3 then
+                self:CancelTimer(timer)
+            end
+        end },
+    },
+
     options = {
         General = {
             { toggle = "enabled", label = "Enable Addon" },
@@ -36,13 +45,6 @@ RGXAddon "RGX-Hello" {
 
     onInit = function(self)
         self:Print("Hello from RGX-Hello!")
-        self.heartbeatTimer = self:Every(1, function(timer)
-            self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
-            if self.heartbeatTicks >= 3 then
-                self:CancelTimer(timer)
-                self.heartbeatTimer = nil
-            end
-        end, "RGX-Hello:heartbeat")
     end,
 
     welcome = "loaded -- /rgxhello for options",

@@ -2,12 +2,16 @@
 
 The [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) reference addon **and** its in-game testing suite, in one install. It exists for two audiences at once:
 
+> This source branch targets the unreleased `v1.3.0` candidate and requires the
+> RGX-Framework `v2.7.0` candidate. The latest published pair remains RGX-Hello
+> `v1.2.1` with RGX-Framework `v2.6.2`.
+
 - **Addon developers** — `data/core.lua` is the canonical "hello world": the smallest complete RGX addon, written in the declarative `RGXAddon` style you should copy when starting your own.
 - **Framework development** — `data/visualtest.lua` is the visual QA harness used to test RGX-Framework's features in-game before releases. As the framework grows, this suite grows with it; the goal is coverage of **every** framework feature.
 
-## Built with rgx-mcp
+## Source Contract Conformance
 
-RGX-Framework temporarily maintains an MCP server at `tools/rgx-mcp/` as a source-tree contract-conformance fixture. It is excluded from the published Framework addon; public API/MCP/editor tooling belongs to RGX Studio. RGX-Hello remains wired into the transition fixture in both directions:
+RGX-Framework temporarily maintains an MCP transport at `tools/rgx-mcp/` as a private source-tree contract-conformance fixture. It is not part of the framework runtime or its published addon; public API/MCP/editor tooling belongs to the later RGX Studio product. RGX-Hello remains wired into the fixture in both directions:
 
 - `rgx_generate_addon` can reproduce `data/core.lua`'s structure from a short spec — the hand-written file and the generator's output are kept convergent.
 - The framework's end-to-end test (`tools/rgx-mcp/test/test-rgx-hello.mjs`) runs the real MCP server against **this repo**: it validates `core.lua`'s opts table against the schema and audits every Lua file here for unsafe patterns. If this repo drifts from the contract, the framework's own test fails.
@@ -27,6 +31,15 @@ RGXAddon "RGX-Hello" {
         volume = 50,
     },
 
+    every = {
+        heartbeat = { 1, function(self, timer)
+            self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
+            if self.heartbeatTicks >= 3 then
+                self:CancelTimer(timer)
+            end
+        end },
+    },
+
     options = {
         General = {
             { toggle = "enabled", label = "Enable Addon" },
@@ -36,20 +49,13 @@ RGXAddon "RGX-Hello" {
 
     onInit = function(self)
         self:Print("Hello from RGX-Hello!")
-        self.heartbeatTimer = self:Every(1, function(timer)
-            self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
-            if self.heartbeatTicks >= 3 then
-                self:CancelTimer(timer)
-                self.heartbeatTimer = nil
-            end
-        end, "RGX-Hello:heartbeat")
     end,
 
     welcome = "loaded -- /rgxhello for options",
 }
 ```
 
-That single call gives you saved settings with automatic persistence, a tabbed options panel with db-bound controls, a slash command, a minimap button, branded chat output, and framework-scoped startup/timer logic. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
+That single call gives you saved settings with automatic persistence, a tabbed options panel with db-bound controls, a named repeating timer, a slash command, a minimap button, branded chat output, and framework-scoped startup logic. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
 
 ## The Testing Suite (`data/visualtest.lua`)
 
@@ -73,13 +79,13 @@ Current coverage:
 | Auras | `RGXAuras` — `IterateAuras` scan, `WatchUnit` + `OnApplied`/`OnRemoved` live log with unsubscribe |
 | Minimap | `RGXMinimap` — `MM:Create` (icon, tooltip, drag, persistent angle), `Toggle`/`IsShown` |
 | Design | `RGX:Font` one-call styling, `RGXDesign` `CreateButton`/`CreateSectionHeader`/`CreateDivider`, theme tokens |
-| System | reference-addon heartbeat via `addon:Every`, `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |
+| System | declarative `every.heartbeat` self-cancellation, `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |
 
 Sound is intentionally untested here — the sound module is a per-addon registry that [BLU](https://github.com/DonnieDice/BLU) exercises in production, which is a more honest test than a synthetic registration. Standing pattern: when a framework module ships or changes, its test tab lands here in the same cycle.
 
 ## Installation
 
-1. Install [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) (required dependency, v2.4.1+).
+1. Install [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) (required dependency, v2.7.0+).
 2. Copy the `RGX-Hello` folder to `World of Warcraft\_retail_\Interface\AddOns\`.
 3. `/reload` or restart, and enable both addons.
 
@@ -87,7 +93,7 @@ Sound is intentionally untested here — the sound module is a per-addon registr
 
 1. Copy the repo; rename the folder, `RGX-Hello.toc`, and `RGX-Hello.xml` to your addon's name.
 2. Edit the TOC header (`Title`, `Notes`, `Author`, `SavedVariables`).
-3. Edit the `RGXAddon "..." { }` call in `data/core.lua` — `db` for settings, `options` for the panel, `on` for triggers, and `every` for repeating work.
+3. Edit the `RGXAddon "..." { }` call in `data/core.lua` — `db` for settings, `options` for the panel, `every` for repeating work, and `onInit` for event/setup code while declarative `on` remains Tier 4.
 4. Delete `data/visualtest.lua` (and its TOC/XML lines) — it tests the framework, not your addon.
 5. Replace `media/icon.tga`, or drop the `minimap` key.
 
