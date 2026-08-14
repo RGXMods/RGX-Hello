@@ -2,11 +2,22 @@
 
 ## Current Development
 
-- The canonical addon uses the shipped `onInit` and `addon:Every` APIs for its
-  three-tick heartbeat while declarative `on`/`every` remain future forms.
-- The System tab displays the heartbeat result for in-game timer verification.
-- Updated MCP distribution wording: Node tooling is maintained with the
-  framework source but excluded from the WoW player archive.
+### [v1.3.0](changelogs/1.3.0.md) (Expected)
+
+- Moved the reference heartbeat from imperative `addon:Every` setup into
+  `every.heartbeat`, exercising Framework v2.7.0's shipped named timer contract.
+- Added explicit in-game verification that the timer reaches 3 ticks,
+  self-cancels, and remains at 3.
+- Raised the minimum Framework version to 2.7.0 across all six flavor TOCs.
+
+## Current Release
+
+### [v1.2.1](changelogs/1.2.1.md) - 2026-08-13
+
+- Replaced premature declarative `on`/`every` usage with shipped imperative
+  APIs until the named timer vertical slice could be rebuilt cleanly.
+- Preserved the three-tick heartbeat and corrected Framework/MCP distribution
+  wording and Retail metadata.
 
 ## [v1.2.0](changelogs/1.2.0.md) - 2026-07-04
 

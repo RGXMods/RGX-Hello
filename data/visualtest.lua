@@ -590,27 +590,28 @@ local function BuildSystemTab(frame)
     local add = Place(frame)
 
     add(UI:CreateLabel(frame, {
-        text = "Timers Visual Test (RGX:After / RGX:Every)",
+        text = "Timers Visual Test (declarative every / RGX:After / RGX:Every)",
         size = "large",
         color = "accent",
     }))
 
     local referenceAddon = R:GetAddon("RGX-Hello")
     local heartbeatLabel = UI:CreateLabel(frame, {
-        text = "Reference addon heartbeat: not checked",
+        text = "Declarative every.heartbeat: not checked",
         size = "small",
         color = "normal",
         width = 340,
     })
     local function RefreshHeartbeatStatus()
         local ticks = referenceAddon and referenceAddon.heartbeatTicks or 0
-        heartbeatLabel:SetText("Reference addon heartbeat: " .. ticks .. "/3 ticks"
-            .. (ticks == 3 and " (self-cancelled: PASS)" or " (wait and check again)"))
+        local result = ticks == 3 and " (self-cancelled: PASS)"
+            or (ticks > 3 and " (FAILED: timer did not stop)" or " (wait and check again)")
+        heartbeatLabel:SetText("Declarative every.heartbeat: " .. ticks .. "/3 ticks" .. result)
     end
     RefreshHeartbeatStatus()
     add(heartbeatLabel)
 
-    local heartbeatBtn = UI:CreateButton(frame, "Check reference heartbeat", 200, 26)
+    local heartbeatBtn = UI:CreateButton(frame, "Check declarative heartbeat", 210, 26)
     heartbeatBtn:SetScript("OnClick", RefreshHeartbeatStatus)
     add(heartbeatBtn, 12)
 
@@ -645,7 +646,7 @@ local function BuildSystemTab(frame)
     add(tickLabel, 16)
 
     add(UI:CreateLabel(frame, {
-        text = "What to test: the reference addon's scoped heartbeat reaches 3 and self-cancels; After fires exactly once ~2s after the click; imperative Every increments the counter each second; Stop must freeze it immediately (CancelTimer). Sound is intentionally not tested here -- BLU exercises the sound registry in production.",
+        text = "What to test: declarative every.heartbeat reaches exactly 3 and self-cancels. Wait at least 5 more seconds, click Check again, and confirm it remains 3. After fires exactly once ~2s after the click; imperative Every increments each second; Stop freezes it immediately (CancelTimer). Sound is intentionally not tested here -- BLU exercises the sound registry in production.",
         size = "small",
         color = "muted",
         width = 340,
