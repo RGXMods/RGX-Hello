@@ -79,17 +79,16 @@ end
 local function BuildColorsTab(frame)
     local UI = R:GetUI()
     local CP = R:GetColorPicker()
-    local add = Place(frame)
 
     local title = UI:CreateLabel(frame, {
         text = "Color Picker Visual Test",
         size = "large",
         color = "accent",
     })
-    add(title)
+    title:SetPoint("TOPLEFT", frame, "TOPLEFT", 18, -18)
 
     local preview = MakePreview(frame, "Selected Color Preview")
-    add(preview, 18)
+    preview:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -12)
 
     local picker = UI:CreateColorPicker(frame, {
         key = "primary",
@@ -105,7 +104,7 @@ local function BuildColorsTab(frame)
             Log("Color changed", string.format("%.2f %.2f %.2f", r, g, b))
         end,
     })
-    add(picker)
+    picker:SetPoint("TOPLEFT", preview, "BOTTOMLEFT", 0, -18)
 
     local accent = UI:CreateColorPicker(frame, {
         key = "accent",
@@ -117,9 +116,14 @@ local function BuildColorsTab(frame)
             Log("Accent changed", string.format("%.2f %.2f %.2f", r, g, b))
         end,
     })
-    add(accent)
+    accent:SetPoint("TOPLEFT", picker, "BOTTOMLEFT", 0, -12)
 
-    add(UI:CreateLabel(frame, { text = "Embedded color-picker card (UI:CreateColorPickerCard):", size = "small", color = "muted" }), 4)
+    local cardLabel = UI:CreateLabel(frame, {
+        text = "Embedded color-picker card (UI:CreateColorPickerCard):",
+        size = "small",
+        color = "muted",
+    })
+    cardLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", 390, -58)
     local card = UI:CreateColorPickerCard(frame, {
         key = "cardColor",
         storage = DB,
@@ -130,7 +134,7 @@ local function BuildColorsTab(frame)
             Log("Embedded card changed", string.format("%.2f %.2f %.2f", r, g, b))
         end,
     })
-    add(card, 18)
+    card:SetPoint("TOPLEFT", cardLabel, "BOTTOMLEFT", 0, -8)
 
     local direct = UI:CreateButton(frame, "Open ColorPicker Directly", 210, 24)
     direct:SetScript("OnClick", function()
@@ -140,14 +144,15 @@ local function BuildColorsTab(frame)
             Log("Direct picker OK", string.format("%.2f %.2f %.2f", r, g, b))
         end)
     end)
-    add(direct)
+    direct:SetPoint("TOPLEFT", card, "BOTTOMLEFT", 0, -18)
 
-    add(UI:CreateLabel(frame, {
+    local instructions = UI:CreateLabel(frame, {
         text = "What to test: click swatches, drag SV square, drag hue bar, type HEX, type RGB, click presets, test OK, test Cancel, test X close, drag picker window, test Reset button.",
         size = "small",
         color = "muted",
-        width = 340,
-    }))
+        width = 740,
+    })
+    instructions:SetPoint("TOPLEFT", frame, "TOPLEFT", 18, -390)
 end
 
 local function BuildControlsTab(frame)
@@ -501,6 +506,8 @@ local function BuildDesignTab(frame)
     local UI = R:GetUI()
     local D = R:GetDesign()
     local add = Place(frame)
+    local defaultPrimary = { 0.345, 0.745, 0.506 }
+    local defaultAccent = { 0.737, 0.435, 0.659 }
 
     add(UI:CreateLabel(frame, {
         text = "RGXDesign + RGX:Font Visual Test",
@@ -540,8 +547,38 @@ local function BuildDesignTab(frame)
         "Design Button", "Hover styling comes from RGXDesign theme tokens (primary color border/text).")
     add(dBtn, 14)
 
+    local status = UI:CreateLabel(frame, {
+        text = "Theme not changed yet.",
+        size = "small",
+        color = "normal",
+        width = 340,
+    })
+    add(status, 8)
+
+    local function ApplyTheme(primary, accent, name)
+        D:SetTheme({ primary = primary, accent = accent })
+        header.label:SetTextColor(D:Unpack("primary"))
+        local pr, pg, pb = D:Unpack("primary")
+        local ar, ag, ab = D:Unpack("accent")
+        status:SetText(string.format("%s: primary #%s / accent #%s",
+            name, D:RGBToHex(pr, pg, pb):upper(), D:RGBToHex(ar, ag, ab):upper()))
+        Log("Design theme", name, D:RGBToHex(pr, pg, pb), D:RGBToHex(ar, ag, ab))
+    end
+
+    local alternate = UI:CreateButton(frame, "Apply cyan/gold theme", 180, 24)
+    alternate:SetScript("OnClick", function()
+        ApplyTheme({ 0.02, 0.87, 0.98 }, { 1.00, 0.84, 0.00 }, "PASS alternate")
+    end)
+    add(alternate, 6)
+
+    local reset = UI:CreateButton(frame, "Restore RGX theme", 180, 24)
+    reset:SetScript("OnClick", function()
+        ApplyTheme(defaultPrimary, defaultAccent, "PASS restored")
+    end)
+    add(reset, 14)
+
     add(UI:CreateLabel(frame, {
-        text = "What to test: both font buttons visibly restyle the sample text; the section header shows the theme's primary color; the design button's border and label turn primary-colored on hover and show its tooltip.",
+        text = "What to test: both font buttons visibly restyle the sample; applying the alternate theme changes the section header and the design button's hover border/text to cyan; Restore returns them to RGX green. The status line must show the matching primary/accent HEX values.",
         size = "small",
         color = "muted",
         width = 340,
@@ -557,6 +594,25 @@ local function BuildSystemTab(frame)
         size = "large",
         color = "accent",
     }))
+
+    local referenceAddon = R:GetAddon("RGX-Hello")
+    local declarativeLabel = UI:CreateLabel(frame, {
+        text = "Declarative every.heartbeat: not checked",
+        size = "small",
+        color = "normal",
+        width = 340,
+    })
+    local function RefreshDeclarativeStatus()
+        local ticks = referenceAddon and referenceAddon.heartbeatTicks or 0
+        declarativeLabel:SetText("Declarative every.heartbeat: " .. ticks .. "/3 ticks"
+            .. (ticks == 3 and " (self-cancelled: PASS)" or " (wait and check again)"))
+    end
+    RefreshDeclarativeStatus()
+    add(declarativeLabel)
+
+    local declarativeBtn = UI:CreateButton(frame, "Check declarative heartbeat", 200, 26)
+    declarativeBtn:SetScript("OnClick", RefreshDeclarativeStatus)
+    add(declarativeBtn, 12)
 
     local afterBtn = UI:CreateButton(frame, "Fire RGX:After(2s)", 200, 26)
     afterBtn:SetScript("OnClick", function()
@@ -589,7 +645,7 @@ local function BuildSystemTab(frame)
     add(tickLabel, 16)
 
     add(UI:CreateLabel(frame, {
-        text = "What to test: After fires exactly once ~2s after the click; Every increments the counter each second; Stop must freeze the counter immediately (CancelTimer). Sound is intentionally not tested here -- BLU exercises the sound registry in production.",
+        text = "What to test: the declarative heartbeat reaches 3 and self-cancels; After fires exactly once ~2s after the click; imperative Every increments the counter each second; Stop must freeze it immediately (CancelTimer). Sound is intentionally not tested here -- BLU exercises the sound registry in production.",
         size = "small",
         color = "muted",
         width = 340,

@@ -13,14 +13,14 @@
 --   - a slash command whose default handler opens that panel (slash)
 --   - a minimap button (minimap)
 --   - branded chat output (welcome, self:Print)
---   - scoped event registration, routed through the framework's taint-safe
---     paths -- never a manual event frame (onInit)
+--   - human event triggers and named repeating timers routed through RGX
+--     paths -- never a manual event frame or C_Timer (on, every)
 --=====================================================================================
 
 RGXAddon "RGX-Hello" {
     dbName  = "RGXHelloDB",
     slash   = "rgxhello",
-    minimap = "Interface\\AddOns\\RGX-Hello\\media\\icon.tga",
+    minimap = "Interface\\AddOns\\RGX-Framework\\media\\logo.tga",
 
     db = {
         enabled = true,
@@ -34,11 +34,20 @@ RGXAddon "RGX-Hello" {
         },
     },
 
-    welcome = "loaded -- /rgxhello for options",
-
-    onInit = function(self)
-        self:RegisterEvent("PLAYER_LOGIN", function()
+    on = {
+        login = function(self)
             self:Print("Hello from RGX-Hello!")
-        end)
-    end,
+        end,
+    },
+
+    every = {
+        heartbeat = { 1, function(self, timer)
+            self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
+            if self.heartbeatTicks >= 3 then
+                self:CancelTimer(timer)
+            end
+        end },
+    },
+
+    welcome = "loaded -- /rgxhello for options",
 }

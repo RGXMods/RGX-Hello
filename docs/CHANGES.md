@@ -1,5 +1,14 @@
 # Changelog
 
+## Current Development
+
+- The canonical addon now exercises shipped human `on` triggers directly
+  instead of registering `PLAYER_LOGIN` imperatively in `onInit`.
+- Added declarative `every.heartbeat`, which ticks three times and cancels
+  itself. The System tab displays its result for in-game lifecycle verification.
+- Updated MCP distribution wording: Node tooling is maintained with the
+  framework source but excluded from the WoW player archive.
+
 ## [v1.2.0](changelogs/1.2.0.md) - 2026-07-04
 
 - **Five new test tabs** — the suite now covers every user-facing framework module: Tooltip (`Tip:Attach`/`Show`/`Hide`/`HookNative`), Auras (`IterateAuras` scan + live `OnApplied`/`OnRemoved` chat log with unsubscribe), Minimap (`MM:Create` with drag/tooltip/persistent angle, `Toggle`), Design (`RGX:Font` one-call styling + `RGXDesign` primitives), and System (`RGX:After`/`Every`/`CancelTimer`). Every API call verified against framework source before writing.

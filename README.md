@@ -7,7 +7,7 @@ The [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) reference addon
 
 ## Built with rgx-mcp
 
-RGX-Framework ships an MCP server (`tools/rgx-mcp/`, included in the framework's packaged zip) that validates, audits, and generates declarative RGX addons against the framework's frozen Simplicity Contract. RGX-Hello is wired into it in both directions:
+RGX-Framework maintains an MCP server at `tools/rgx-mcp/` that validates, audits, and generates declarative RGX addons against the framework's frozen Simplicity Contract. It is developer tooling and is excluded from the WoW player zip. RGX-Hello is wired into it in both directions:
 
 - `rgx_generate_addon` can reproduce `data/core.lua`'s structure from a short spec — the hand-written file and the generator's output are kept convergent.
 - The framework's end-to-end test (`tools/rgx-mcp/test/test-rgx-hello.mjs`) runs the real MCP server against **this repo**: it validates `core.lua`'s opts table against the schema and audits every Lua file here for unsafe patterns. If this repo drifts from the contract, the framework's own test fails.
@@ -20,7 +20,7 @@ That loop has already paid off: its first run caught a framework bug (the declar
 RGXAddon "RGX-Hello" {
     dbName  = "RGXHelloDB",
     slash   = "rgxhello",
-    minimap = "Interface\\AddOns\\RGX-Hello\\media\\icon.tga",
+    minimap = "Interface\\AddOns\\RGX-Framework\\media\\logo.tga",
 
     db = {
         enabled = true,
@@ -34,17 +34,26 @@ RGXAddon "RGX-Hello" {
         },
     },
 
-    welcome = "loaded -- /rgxhello for options",
-
-    onInit = function(self)
-        self:RegisterEvent("PLAYER_LOGIN", function()
+    on = {
+        login = function(self)
             self:Print("Hello from RGX-Hello!")
-        end)
-    end,
+        end,
+    },
+
+    every = {
+        heartbeat = { 1, function(self, timer)
+            self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
+            if self.heartbeatTicks >= 3 then
+                self:CancelTimer(timer)
+            end
+        end },
+    },
+
+    welcome = "loaded -- /rgxhello for options",
 }
 ```
 
-That single call gives you saved settings with automatic persistence, a tabbed options panel with db-bound controls, a slash command, a minimap button, branded chat output, and taint-safe event registration. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
+That single call gives you saved settings with automatic persistence, a tabbed options panel with db-bound controls, a slash command, a minimap button, branded chat output, human triggers, and owner-scoped named timers. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
 
 ## The Testing Suite (`data/visualtest.lua`)
 
@@ -68,7 +77,7 @@ Current coverage:
 | Auras | `RGXAuras` — `IterateAuras` scan, `WatchUnit` + `OnApplied`/`OnRemoved` live log with unsubscribe |
 | Minimap | `RGXMinimap` — `MM:Create` (icon, tooltip, drag, persistent angle), `Toggle`/`IsShown` |
 | Design | `RGX:Font` one-call styling, `RGXDesign` `CreateButton`/`CreateSectionHeader`/`CreateDivider`, theme tokens |
-| System | `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |
+| System | declarative `every`, `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |
 
 Sound is intentionally untested here — the sound module is a per-addon registry that [BLU](https://github.com/DonnieDice/BLU) exercises in production, which is a more honest test than a synthetic registration. Standing pattern: when a framework module ships or changes, its test tab lands here in the same cycle.
 
@@ -82,7 +91,7 @@ Sound is intentionally untested here — the sound module is a per-addon registr
 
 1. Copy the repo; rename the folder, `RGX-Hello.toc`, and `RGX-Hello.xml` to your addon's name.
 2. Edit the TOC header (`Title`, `Notes`, `Author`, `SavedVariables`).
-3. Edit the `RGXAddon "..." { }` call in `data/core.lua` — `db` for settings, `options` for the panel, `onInit` for behavior.
+3. Edit the `RGXAddon "..." { }` call in `data/core.lua` — `db` for settings, `options` for the panel, `on` for triggers, and `every` for repeating work.
 4. Delete `data/visualtest.lua` (and its TOC/XML lines) — it tests the framework, not your addon.
 5. Replace `media/icon.tga`, or drop the `minimap` key.
 
