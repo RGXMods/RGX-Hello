@@ -596,23 +596,23 @@ local function BuildSystemTab(frame)
     }))
 
     local referenceAddon = R:GetAddon("RGX-Hello")
-    local declarativeLabel = UI:CreateLabel(frame, {
-        text = "Declarative every.heartbeat: not checked",
+    local heartbeatLabel = UI:CreateLabel(frame, {
+        text = "Reference addon heartbeat: not checked",
         size = "small",
         color = "normal",
         width = 340,
     })
-    local function RefreshDeclarativeStatus()
+    local function RefreshHeartbeatStatus()
         local ticks = referenceAddon and referenceAddon.heartbeatTicks or 0
-        declarativeLabel:SetText("Declarative every.heartbeat: " .. ticks .. "/3 ticks"
+        heartbeatLabel:SetText("Reference addon heartbeat: " .. ticks .. "/3 ticks"
             .. (ticks == 3 and " (self-cancelled: PASS)" or " (wait and check again)"))
     end
-    RefreshDeclarativeStatus()
-    add(declarativeLabel)
+    RefreshHeartbeatStatus()
+    add(heartbeatLabel)
 
-    local declarativeBtn = UI:CreateButton(frame, "Check declarative heartbeat", 200, 26)
-    declarativeBtn:SetScript("OnClick", RefreshDeclarativeStatus)
-    add(declarativeBtn, 12)
+    local heartbeatBtn = UI:CreateButton(frame, "Check reference heartbeat", 200, 26)
+    heartbeatBtn:SetScript("OnClick", RefreshHeartbeatStatus)
+    add(heartbeatBtn, 12)
 
     local afterBtn = UI:CreateButton(frame, "Fire RGX:After(2s)", 200, 26)
     afterBtn:SetScript("OnClick", function()
@@ -645,7 +645,7 @@ local function BuildSystemTab(frame)
     add(tickLabel, 16)
 
     add(UI:CreateLabel(frame, {
-        text = "What to test: the declarative heartbeat reaches 3 and self-cancels; After fires exactly once ~2s after the click; imperative Every increments the counter each second; Stop must freeze it immediately (CancelTimer). Sound is intentionally not tested here -- BLU exercises the sound registry in production.",
+        text = "What to test: the reference addon's scoped heartbeat reaches 3 and self-cancels; After fires exactly once ~2s after the click; imperative Every increments the counter each second; Stop must freeze it immediately (CancelTimer). Sound is intentionally not tested here -- BLU exercises the sound registry in production.",
         size = "small",
         color = "muted",
         width = 340,
