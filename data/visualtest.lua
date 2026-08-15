@@ -395,6 +395,13 @@ local function BuildAurasTab(frame)
     }))
 
     local result = UI:CreateLabel(frame, { text = "No scan yet.", size = "small", color = "normal", width = 340 })
+    result:SetHeight(42)
+    result:SetJustifyV("TOP")
+    local function AuraRestrictionText()
+        local secretState = R.API.ShouldAurasBeSecret()
+        return secretState == true and "ACTIVE"
+            or (secretState == false and "inactive" or "unknown/fail-closed")
+    end
 
     local scanBtn = UI:CreateButton(frame, "Scan Player Auras (IterateAuras)", 240, 26)
     scanBtn:SetScript("OnClick", function()
@@ -402,8 +409,7 @@ local function BuildAurasTab(frame)
         Auras:IterateAuras("player", "HELPFUL", function(auraData)
             total = total + 1
             if #names < 5 then
-                local ok, name = pcall(function() return auraData.name end)
-                names[#names + 1] = (ok and name) or "?"
+                names[#names + 1] = auraData.name or "?"
             end
         end)
         result:SetText(total == 0 and "No HELPFUL auras on player."
@@ -411,35 +417,86 @@ local function BuildAurasTab(frame)
         Log("Aura scan complete:", total, "helpful aura(s)")
     end)
     add(scanBtn)
+
+    local targetBtn = UI:CreateButton(frame, "Scan Accessible Target Auras", 240, 26)
+    targetBtn:SetScript("OnClick", function()
+        local total = Auras:IterateAuras("target", nil, function() end)
+        local stateText = AuraRestrictionText()
+        result:SetText(string.format(
+            "Aura restriction: %s. RGXAuras delivered %d accessible target aura(s).",
+            stateText,
+            total
+        ))
+        Log("Accessible target aura scan:", total, "restriction:", stateText)
+    end)
+    add(targetBtn)
     add(result, 16)
 
     -- Live watch: player is watched by Auras:Init, but WatchUnit is idempotent
     -- so calling it again is safe if module init ordering ever changes.
-    local unsubApplied, unsubRemoved
+    local unsubApplied, unsubRemoved, unsubUpdated
+    local liveApplied, liveUpdated, liveRemoved = 0, 0, 0
     local watchBtn = UI:CreateButton(frame, "Start Live Aura Log", 240, 26)
     watchBtn:SetScript("OnClick", function()
         if unsubApplied then
-            unsubApplied(); unsubRemoved()
-            unsubApplied, unsubRemoved = nil, nil
-            Log("Live aura log STOPPED")
+            unsubApplied(); unsubRemoved(); unsubUpdated()
+            unsubApplied, unsubRemoved, unsubUpdated = nil, nil, nil
+            if watchBtn.label then watchBtn.label:SetText("Start Live Aura Log") end
+            result:SetText(string.format(
+                "Live aura log STOPPED: applied %d, updated %d, removed %d. Cause another aura change to verify silence.",
+                liveApplied,
+                liveUpdated,
+                liveRemoved
+            ))
+            Log("Live aura log STOPPED -- applied/updated/removed:", liveApplied, liveUpdated, liveRemoved)
             return
         end
-        Auras:WatchUnit("player")
+        local playerWatched = Auras:WatchUnit("player")
+        local targetWatched = Auras:WatchUnit("target")
+        if not playerWatched or not targetWatched then
+            result:SetText(string.format(
+                "Live aura log FAILED: player watch %s, target watch %s. No suppression result is valid until both register.",
+                playerWatched and "ready" or "FAILED",
+                targetWatched and "ready" or "FAILED"
+            ))
+            Log("Live aura log FAILED -- player watch:", playerWatched, "target watch:", targetWatched)
+            return
+        end
+        liveApplied, liveUpdated, liveRemoved = 0, 0, 0
         unsubApplied = Auras:OnApplied(function(unit, auraData)
-            if unit ~= "player" then return end
-            local ok, name = pcall(function() return auraData.name end)
-            Log("Aura APPLIED:", (ok and name) or "?")
+            liveApplied = liveApplied + 1
+            Log("Aura APPLIED:", unit, auraData.name or "?")
         end)
         unsubRemoved = Auras:OnRemoved(function(unit, instanceID)
-            if unit ~= "player" then return end
-            Log("Aura REMOVED: instance", instanceID)
+            liveRemoved = liveRemoved + 1
+            Log("Aura REMOVED:", unit, "instance", instanceID)
         end)
-        Log("Live aura log STARTED -- buff/debuff yourself (eat food, mount up) and watch chat. Click again to stop.")
+        unsubUpdated = Auras:OnUpdated(function(unit, auraData)
+            liveUpdated = liveUpdated + 1
+            Log("Aura UPDATED:", unit, auraData.name or "?")
+        end)
+        if watchBtn.label then watchBtn.label:SetText("Stop Live Aura Log") end
+        result:SetText("Live aura log ACTIVE: player and target watches registered; counters reset to 0/0/0.")
+        Log("Live aura log STARTED for player + target. Restricted UNIT_AURA data must produce no callback or Lua/taint error.")
     end)
     add(watchBtn)
 
+    local snapshotBtn = UI:CreateButton(frame, "Snapshot Aura Counters", 240, 26)
+    snapshotBtn:SetScript("OnClick", function()
+        local stateText = AuraRestrictionText()
+        result:SetText(string.format(
+            "Counter snapshot (%s): applied %d, updated %d, removed %d.",
+            stateText,
+            liveApplied,
+            liveUpdated,
+            liveRemoved
+        ))
+        Log("Aura counter snapshot:", stateText, liveApplied, liveUpdated, liveRemoved)
+    end)
+    add(snapshotBtn)
+
     add(UI:CreateLabel(frame, {
-        text = "What to test: scan lists your current buffs; live log prints APPLIED/REMOVED lines in chat as auras change (eat food, mount, cancel a buff). Unsubscribe (second click) must stop the chat lines.",
+        text = "What to test: start the log and require both watches to register. Outside restrictions, exercise applied/updated/removed and confirm a target callback. In restricted Retail content, snapshot immediately before and after a visible target aura change; all values must stay equal. After leaving, snapshot recovery after one change and use a second if the first silently resyncs. Stop, cause one more change, snapshot unchanged totals, and verify chat silence.",
         size = "small",
         color = "muted",
         width = 340,

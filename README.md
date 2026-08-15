@@ -76,7 +76,7 @@ Current coverage:
 | Dropdowns | `RGXDropdowns:CreateNestedDropdown` (groups, separators, checked state) |
 | Media | `RGXFonts` font dropdown, `RGXTextures` statusbar textures |
 | Tooltip | `RGXTooltip` — `Tip:Attach` builder, manual `Show`/`Hide`, `HookNative("item")` injection |
-| Auras | `RGXAuras` — `IterateAuras` scan, `WatchUnit` + `OnApplied`/`OnRemoved` live log with unsubscribe |
+| Auras | `RGXAuras` — accessible-only player/target scans, `WatchUnit` + `OnApplied`/`OnUpdated`/`OnRemoved` live log, phase counter snapshots, restricted-target suppression, unsubscribe |
 | Minimap | `RGXMinimap` — `MM:Create` (icon, tooltip, drag, persistent angle), `Toggle`/`IsShown` |
 | Design | `RGX:Font` one-call styling, `RGXDesign` `CreateButton`/`CreateSectionHeader`/`CreateDivider`, theme tokens |
 | System | declarative `every.heartbeat` self-cancellation, `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |

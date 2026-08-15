@@ -9,6 +9,9 @@
 - Added explicit in-game verification that the timer reaches 3 ticks,
   self-cancels, and remains at 3.
 - Raised the minimum Framework version to 2.7.0 across all six flavor TOCs.
+- Expanded the Auras tab to verify accessible-only player/target scans,
+  applied/updated/removed callbacks, and restricted-target suppression without
+  `pcall`-wrapped field access, with exact before/after/recovery counter snapshots.
 
 ## Current Release
 
