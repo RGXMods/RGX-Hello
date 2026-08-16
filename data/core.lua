@@ -45,6 +45,7 @@ RGXAddon "RGX-Hello" {
 
     onInit = function(self)
         self:Print("Hello from RGX-Hello!")
+        self:Print("Framework: " .. (RGX.version or "unknown"))
     end,
 
     welcome = "loaded -- /rgxhello for options",
