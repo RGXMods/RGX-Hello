@@ -17,6 +17,8 @@
 --     manual event frame or C_Timer (onInit, declarative every)
 --=====================================================================================
 
+local RGX = _G.RGXFramework
+
 RGXAddon "RGX-Hello" {
     dbName  = "RGXHelloDB",
     slash   = "rgxhello",
