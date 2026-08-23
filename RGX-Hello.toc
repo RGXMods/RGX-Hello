@@ -6,7 +6,7 @@
 ## Category: RGX
 ## Group: RGX
 ## RequiredDeps: RGX-Framework
-## X-RGX-Framework-MinVersion: 2.7.0
+## X-RGX-Framework-MinVersion: 2.7.2
 ## SavedVariables: RGXHelloDB, RGXVisualTestDB
 ## IconTexture: Interface\AddOns\RGX-Framework\media\logo.tga
 
