@@ -1,6 +1,6 @@
 # RGX-Hello
 
-The [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) reference addon **and** its in-game testing suite, in one install. It exists for two audiences at once:
+The [RGX-Framework](https://github.com/RGXMods/RGX-Framework) reference addon **and** its in-game testing suite, in one install. It exists for two audiences at once:
 
 > RGX-Hello `v1.3.1` requires RGX-Framework `v2.7.4` or newer.
 
@@ -82,11 +82,11 @@ Current coverage:
 | Design | `RGX:Font` one-call styling, `RGXDesign` `CreateButton`/`CreateSectionHeader`/`CreateDivider`, theme tokens |
 | System | declarative `every.heartbeat` self-cancellation, `RGX:After`, `RGX:Every`, `RGX:CancelTimer` |
 
-Sound is intentionally untested here — the sound module is a per-addon registry that [BLU](https://github.com/DonnieDice/BLU) exercises in production, which is a more honest test than a synthetic registration. Standing pattern: when a framework module ships or changes, its test tab lands here in the same cycle.
+Sound is intentionally untested here — the sound module is a per-addon registry that [BLU](https://github.com/RGXMods/BLU) exercises in production, which is a more honest test than a synthetic registration. Standing pattern: when a framework module ships or changes, its test tab lands here in the same cycle.
 
 ## Installation
 
-1. Install [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) (required dependency, v2.7.4+).
+1. Install [RGX-Framework](https://github.com/RGXMods/RGX-Framework) (required dependency, v2.7.4+).
 2. Copy the `RGX-Hello` folder to `World of Warcraft\_retail_\Interface\AddOns\`.
 3. `/reload` or restart, and enable both addons.
 
@@ -98,7 +98,7 @@ Sound is intentionally untested here — the sound module is a per-addon registr
 4. Delete `data/visualtest.lua` (and its TOC/XML lines) — it tests the framework, not your addon.
 5. Replace `media/icon.tga`, or drop the `minimap` key.
 
-For the full declarative surface see the framework's [DECLARATIVE-API.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/DECLARATIVE-API.md), [SUPER-SIMPLE.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/SUPER-SIMPLE.md), and [API.md](https://github.com/DonnieDice/RGX-Framework/blob/main/docs/API.md).
+For the full declarative surface see the framework's [DECLARATIVE-API.md](https://github.com/RGXMods/RGX-Framework/blob/main/docs/DECLARATIVE-API.md), [SUPER-SIMPLE.md](https://github.com/RGXMods/RGX-Framework/blob/main/docs/SUPER-SIMPLE.md), and [API.md](https://github.com/RGXMods/RGX-Framework/blob/main/docs/API.md).
 
 ## Project Structure
 
