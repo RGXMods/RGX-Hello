@@ -1,8 +1,18 @@
 # Changelog
 
-## Current Development
+## Current Release
 
-### [v1.3.0](changelogs/1.3.0.md) (Expected)
+### [v1.3.1](changelogs/1.3.1.md) - 2026-08-23
+
+- Replaced three hard-coded startup lines with one metadata-derived
+  `RGX:LoginMessage` line that obeys the framework's global login preference.
+- Routed RGXVisual logging through the standard framework chat formatter and
+  removed its independent startup message.
+- Raised all six flavor TOCs to RGX-Hello 1.3.1 and RGX-Framework 2.7.4.
+
+## Recent Releases
+
+### [v1.3.0](changelogs/1.3.0.md) - 2026-08-15
 
 - Moved the reference heartbeat from imperative `addon:Every` setup into
   `every.heartbeat`, exercising Framework v2.7.0's shipped named timer contract.
@@ -12,8 +22,6 @@
 - Expanded the Auras tab to verify accessible-only player/target scans,
   applied/updated/removed callbacks, and restricted-target suppression without
   `pcall`-wrapped field access, with exact before/after/recovery counter snapshots.
-
-## Current Release
 
 ### [v1.2.1](changelogs/1.2.1.md) - 2026-08-13
 
