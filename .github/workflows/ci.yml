@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 env:
-  FRAMEWORK_REPO: https://github.com/DonnieDice/RGX-Framework.git
+  FRAMEWORK_REPO: https://github.com/RGXMods/RGX-Framework.git
 
 jobs:
   test:
