@@ -30,7 +30,7 @@ DB.volume = DB.volume or "medium"
 DB.dropdownChoice = DB.dropdownChoice or "one"
 
 local function Log(...)
-    print("|cFF00A2FF[RGXVisual]|r", ...)
+    R:Print("[RGXVisual]", ...)
 end
 
 local function Place(parent)
@@ -753,5 +753,4 @@ R:OnReady(function()
         end)
     end, "RGX_COLOR_DIRECT")
 
-    Log("loaded -- use /rgxvisual or /rgxcolor")
 end)

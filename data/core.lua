@@ -45,11 +45,12 @@ RGXAddon "RGX-Hello" {
         },
     },
 
-    onInit = function(self)
-        self:Print("Hello from RGX-Hello!")
-        self:Print("Framework: " .. (RGX.version or "unknown"))
-        self:Print("RGX-Hello: 1.3.0")
+    onInit = function()
+        local version = RGX.API.GetAddOnMetadata("RGX-Hello", "Version") or "unknown"
+        RGX:LoginMessage(string.format(
+            "RGX-Hello v%s loaded with RGX-Framework v%s.",
+            tostring(version),
+            tostring(RGX.version or "unknown")
+        ))
     end,
-
-    welcome = "loaded -- /rgxhello for options",
 }

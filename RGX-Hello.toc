@@ -1,12 +1,12 @@
 ## Interface: 120100
-## Version: 1.3.0
+## Version: 1.3.1
 ## Title: RGX-Hello
 ## Notes: The smallest complete RGX-Framework addon -- a reference/template for building on RGX, plus its visual QA harness (/rgxvisual, /rgxcolor).
 ## Author: DonnieDice
 ## Category: RGX
 ## Group: RGX
 ## RequiredDeps: RGX-Framework
-## X-RGX-Framework-MinVersion: 2.7.3
+## X-RGX-Framework-MinVersion: 2.7.4
 ## SavedVariables: RGXHelloDB, RGXVisualTestDB
 ## IconTexture: Interface\AddOns\RGX-Framework\media\logo.tga
 
