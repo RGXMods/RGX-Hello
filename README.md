@@ -2,9 +2,7 @@
 
 The [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) reference addon **and** its in-game testing suite, in one install. It exists for two audiences at once:
 
-> This source branch targets the unreleased `v1.3.0` candidate and requires the
-> RGX-Framework `v2.7.0` candidate. The latest published pair remains RGX-Hello
-> `v1.2.1` with RGX-Framework `v2.6.2`.
+> RGX-Hello `v1.3.1` requires RGX-Framework `v2.7.4` or newer.
 
 - **Addon developers** — `data/core.lua` is the canonical "hello world": the smallest complete RGX addon, written in the declarative `RGXAddon` style you should copy when starting your own.
 - **Framework development** — `data/visualtest.lua` is the visual QA harness used to test RGX-Framework's features in-game before releases. As the framework grows, this suite grows with it; the goal is coverage of **every** framework feature.
@@ -47,11 +45,14 @@ RGXAddon "RGX-Hello" {
         },
     },
 
-    onInit = function(self)
-        self:Print("Hello from RGX-Hello!")
+    onInit = function()
+        local version = RGX.API.GetAddOnMetadata("RGX-Hello", "Version") or "unknown"
+        RGX:LoginMessage(string.format(
+            "RGX-Hello v%s loaded with RGX-Framework v%s.",
+            tostring(version),
+            tostring(RGX.version or "unknown")
+        ))
     end,
-
-    welcome = "loaded -- /rgxhello for options",
 }
 ```
 
@@ -85,7 +86,7 @@ Sound is intentionally untested here — the sound module is a per-addon registr
 
 ## Installation
 
-1. Install [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) (required dependency, v2.7.0+).
+1. Install [RGX-Framework](https://github.com/DonnieDice/RGX-Framework) (required dependency, v2.7.4+).
 2. Copy the `RGX-Hello` folder to `World of Warcraft\_retail_\Interface\AddOns\`.
 3. `/reload` or restart, and enable both addons.
 
