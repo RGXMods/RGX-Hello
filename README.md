@@ -2,7 +2,7 @@
 
 The [RGX-Framework](https://github.com/RGXMods/RGX-Framework) reference addon **and** its in-game testing suite, in one install. It exists for two audiences at once:
 
-> RGX-Hello `v1.3.1` requires RGX-Framework `v2.7.6` or newer.
+> RGX-Hello `v1.3.1` requires RGX-Framework `v2.7.7` or newer.
 
 - **Addon developers** — `data/core.lua` is the canonical "hello world": the smallest complete RGX addon, written in the declarative `RGXAddon` style you should copy when starting your own.
 - **Framework development** — `data/visualtest.lua` is the visual QA harness used to test RGX-Framework's features in-game before releases. As the framework grows, this suite grows with it; the goal is coverage of **every** framework feature.
@@ -86,7 +86,7 @@ Sound is intentionally untested here — the sound module is a per-addon registr
 
 ## Installation
 
-1. Install [RGX-Framework](https://github.com/RGXMods/RGX-Framework) (required dependency, v2.7.6+).
+1. Install [RGX-Framework](https://github.com/RGXMods/RGX-Framework) (required dependency, v2.7.7+).
 2. Copy the `RGX-Hello` folder to `World of Warcraft\_retail_\Interface\AddOns\`.
 3. `/reload` or restart, and enable both addons.
 
