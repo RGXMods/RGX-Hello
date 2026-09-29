@@ -13,6 +13,7 @@ Thumbs.db
 
 # Build artifacts
 artifacts/
+.release/
 *.zip
 *.rar
 releases/
