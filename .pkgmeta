@@ -1,5 +1,6 @@
 # RGX-Hello Package Metadata
-# Used by BigWigsMods packager (GitHub Actions release workflow)
+# Exclusion policy for the in-house release packager
+# (tools/release/packager.mjs + tools/release/publish-release.mjs).
 
 package-as: RGX-Hello
 
@@ -12,11 +13,10 @@ manual-changelog:
   filename: docs/CHANGES.md
   markup-type: markdown
 
-# NOTE: directory entries must NOT have a trailing slash -- the packager's
-# matcher treats "docs/" and "docs" differently, and the slash form silently
-# fails (verified against RGX-Framework's v2.2.0 zip leak).
 ignore:
   - .gitignore
   - README.md
+  - AGENTS.md
   - media/README.md
   - docs
+  - tools
