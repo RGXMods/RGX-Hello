@@ -1,5 +1,5 @@
 ## Interface: 120100
-## X-Wago-ID: j6jAbWNR0
+## X-Wago-ID: j6jAbWNR
 ## Version: 1.3.2
 ## Title: RGX-Hello
 ## Notes: The smallest complete RGX-Framework addon -- a reference/template for building on RGX, plus its visual QA harness (/rgxvisual, /rgxcolor).
