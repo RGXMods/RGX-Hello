@@ -33,6 +33,39 @@ local function Log(...)
     R:Print("[RGXVisual]", ...)
 end
 
+-- Single projection path: DB.primary / DB.accent are the source of truth, and
+-- every bound color display plus the panel theme derive from them here. Widgets
+-- register as they are (re)built; missing entries are skipped so a lazy rebuild
+-- never references a stale frame.
+local projection = {}
+
+local function ApplyPanelTheme()
+    local a = R:GetAddon("RGX-Hello")
+    local panel = a and a.panel
+    if panel and type(panel.SetTheme) == "function" then
+        panel:SetTheme({ primary = DB.primary, accent = DB.accent, accentHeader = true })
+    end
+end
+
+local function Project()
+    if projection.preview then
+        projection.preview:SetColor(DB.primary.r, DB.primary.g, DB.primary.b)
+    end
+    if projection.accentPreview then
+        projection.accentPreview:SetColor(DB.accent.r, DB.accent.g, DB.accent.b)
+    end
+    if projection.picker and type(projection.picker.Refresh) == "function" then
+        projection.picker:Refresh()
+    end
+    if projection.accentPicker and type(projection.accentPicker.Refresh) == "function" then
+        projection.accentPicker:Refresh()
+    end
+    if projection.card and type(projection.card.Refresh) == "function" then
+        projection.card:Refresh()
+    end
+    ApplyPanelTheme()
+end
+
 local function Place(parent)
     local y = -18
     return function(widget, gap)
@@ -43,8 +76,9 @@ local function Place(parent)
     end
 end
 
-local function MakePreview(parent, title)
+local function MakePreview(parent, title, color)
     local D = R:GetDesign()
+    local c = color or DB.primary
     local f = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     f:SetSize(300, 130)
     f:SetBackdrop({
@@ -62,7 +96,7 @@ local function MakePreview(parent, title)
     f.swatch = f:CreateTexture(nil, "ARTWORK")
     f.swatch:SetSize(90, 50)
     f.swatch:SetPoint("CENTER", 0, -12)
-    f.swatch:SetColorTexture(DB.primary.r, DB.primary.g, DB.primary.b, 1)
+    f.swatch:SetColorTexture(c.r, c.g, c.b, 1)
 
     f.value = f:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     f.value:SetPoint("BOTTOM", 0, 10)
@@ -72,7 +106,7 @@ local function MakePreview(parent, title)
         self.value:SetText(string.format("RGB %.2f / %.2f / %.2f", r, g, b))
     end
 
-    f:SetColor(DB.primary.r, DB.primary.g, DB.primary.b)
+    f:SetColor(c.r, c.g, c.b)
     return f
 end
 
@@ -87,7 +121,7 @@ local function BuildColorsTab(frame)
     })
     title:SetPoint("TOPLEFT", frame, "TOPLEFT", 18, -18)
 
-    local preview = MakePreview(frame, "Selected Color Preview")
+    local preview = MakePreview(frame, "Primary Color Preview", DB.primary)
     preview:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -12)
 
     local picker = UI:CreateColorPicker(frame, {
@@ -96,11 +130,11 @@ local function BuildColorsTab(frame)
         storage = DB,
         default = { r = 0.35, g = 0.75, b = 0.51 },
         previewOnClick = function()
-            Log("Color swatch clicked -- test SV square, hue bar, RGB, HEX, presets, OK/Cancel")
+            Log("Color swatch clicked -- test honeycomb spectrum, brightness bar, RGB, HEX, presets, OK/Cancel")
         end,
         onChange = function(r, g, b)
             DB.primary = { r = r, g = g, b = b }
-            preview:SetColor(r, g, b)
+            Project()
             Log("Color changed", string.format("%.2f %.2f %.2f", r, g, b))
         end,
     })
@@ -113,10 +147,14 @@ local function BuildColorsTab(frame)
         default = { r = 0.74, g = 0.44, b = 0.66 },
         onChange = function(r, g, b)
             DB.accent = { r = r, g = g, b = b }
+            Project()
             Log("Accent changed", string.format("%.2f %.2f %.2f", r, g, b))
         end,
     })
     accent:SetPoint("TOPLEFT", picker, "BOTTOMLEFT", 0, -12)
+
+    local accentPreview = MakePreview(frame, "Accent Color Preview", DB.accent)
+    accentPreview:SetPoint("TOPLEFT", accent, "BOTTOMLEFT", 0, -18)
 
     local cardLabel = UI:CreateLabel(frame, {
         text = "Embedded color-picker card (UI:CreateColorPickerCard):",
@@ -125,12 +163,13 @@ local function BuildColorsTab(frame)
     })
     cardLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", 390, -58)
     local card = UI:CreateColorPickerCard(frame, {
-        key = "cardColor",
+        key = "primary",
         storage = DB,
         default = { r = 0.35, g = 0.75, b = 0.51 },
         width = 220,
         onChange = function(r, g, b)
-            preview:SetColor(r, g, b)
+            DB.primary = { r = r, g = g, b = b }
+            Project()
             Log("Embedded card changed", string.format("%.2f %.2f %.2f", r, g, b))
         end,
     })
@@ -140,19 +179,28 @@ local function BuildColorsTab(frame)
     direct:SetScript("OnClick", function()
         CP:Show(DB.primary, function(r, g, b)
             DB.primary = { r = r, g = g, b = b }
-            preview:SetColor(r, g, b)
+            Project()
             Log("Direct picker OK", string.format("%.2f %.2f %.2f", r, g, b))
         end)
     end)
     direct:SetPoint("TOPLEFT", card, "BOTTOMLEFT", 0, -18)
 
+    -- Register this build's widgets and project once so every view and the
+    -- panel theme agree with DB from the moment the tab appears.
+    projection.preview = preview
+    projection.accentPreview = accentPreview
+    projection.picker = picker
+    projection.accentPicker = accent
+    projection.card = card
+    Project()
+
     local instructions = UI:CreateLabel(frame, {
-        text = "What to test: click swatches, drag SV square, drag hue bar, type HEX, type RGB, click presets, test OK, test Cancel, test X close, drag picker window, test Reset button.",
+        text = "What to test: click swatches, click/drag the honeycomb spectrum, drag the brightness bar, type HEX, type RGB, click presets, test OK, test Cancel, test X close, drag picker window, test Reset button. Both previews and the panel's tab/header colors must follow DB.primary/accent, whether changed from either swatch, the embedded card, or the standalone picker.",
         size = "small",
         color = "muted",
         width = 740,
     })
-    instructions:SetPoint("TOPLEFT", frame, "TOPLEFT", 18, -390)
+    instructions:SetPoint("TOPLEFT", frame, "TOPLEFT", 18, -410)
 end
 
 local function BuildControlsTab(frame)
@@ -749,8 +797,11 @@ R:OnReady(function()
         local CP = R:GetColorPicker()
         CP:Show(DB.primary, function(r, g, b)
             DB.primary = { r = r, g = g, b = b }
+            Project()
             Log("Direct color picker OK", string.format("%.2f %.2f %.2f", r, g, b))
         end)
     end, "RGX_COLOR_DIRECT")
+
+    Project()
 
 end)
