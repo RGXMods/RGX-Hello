@@ -43,7 +43,7 @@ local function ApplyPanelTheme()
     local a = R:GetAddon("RGX-Hello")
     local panel = a and a.panel
     if panel and type(panel.SetTheme) == "function" then
-        panel:SetTheme({ primary = DB.primary, accent = DB.accent })
+        panel:SetTheme({ primary = DB.primary, accent = DB.accent, accentHeader = true })
     end
 end
 
