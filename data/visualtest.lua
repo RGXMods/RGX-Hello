@@ -86,7 +86,8 @@ local function MakePreview(parent, title, color)
         edgeFile = "Interface\\Buttons\\WHITE8x8",
         edgeSize = 1,
     })
-    f:SetBackdropColor(0.08, 0.09, 0.11, 0.96)
+    local bsr, bsg, bsb = D:Unpack("surface")
+    f:SetBackdropColor(bsr, bsg, bsb, 0.96)
     f:SetBackdropBorderColor(D:Unpack("border"))
 
     f.title = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -348,7 +349,8 @@ local function BuildMediaTab(frame)
 
     local barBG = bar:CreateTexture(nil, "BACKGROUND")
     barBG:SetAllPoints()
-    barBG:SetColorTexture(0.1, 0.1, 0.1, 1)
+    local tbr, tbg, tbb = R:GetDesign():Unpack("track")
+    barBG:SetColorTexture(tbr, tbg, tbb, 1)
 
     local texDD = Textures:CreateBarSettingControl(frame, {
         label = "Statusbar Texture",
@@ -682,8 +684,62 @@ local function BuildDesignTab(frame)
     end)
     add(reset, 14)
 
+    -- Interface style selector test: framework/retail/classic/forever.
+    -- Session-only (framework settings persist); the rebuilt sample shows
+    -- corners + palette immediately, open windows re-skin on reload.
     add(UI:CreateLabel(frame, {
-        text = "What to test: both font buttons visibly restyle the sample; applying the alternate theme changes the section header and the design button's hover border/text to cyan; Restore returns them to RGX green. The status line must show the matching primary/accent HEX values.",
+        text = "Interface Style Test",
+        size = "large",
+        color = "accent",
+    }))
+
+    local styleStatus = UI:CreateLabel(frame, {
+        text = "Style: framework (session only).",
+        size = "small",
+        color = "normal",
+        width = 340,
+    })
+    add(styleStatus, 8)
+
+    local styleRow = CreateFrame("Frame", nil, frame)
+    styleRow:SetSize(328, 22)
+    add(styleRow, 6)
+
+    local sampleHost = CreateFrame("Frame", nil, frame)
+    sampleHost:SetSize(340, 60)
+    add(sampleHost, 6)
+
+    local styleSample
+    local function ApplyStyle(name)
+        if not D:SetStyle(name) then return end
+        if styleSample then styleSample:Hide() end
+        styleSample = D:CreateFrame(sampleHost, { width = 340, height = 56 })
+        styleSample:SetPoint("TOPLEFT", sampleHost, "TOPLEFT", 0, 0)
+        local sLabel = UI:CreateLabel(styleSample, {
+            text = name .. ": " .. (D.cornerStyle or "?") .. " corners",
+            size = "normal",
+            color = "normal",
+        })
+        sLabel:SetPoint("TOPLEFT", styleSample, "TOPLEFT", 12, -8)
+        local sSub = UI:CreateLabel(styleSample, {
+            text = "Surface " .. D:RGBToHex(D:Unpack("surface")):upper(),
+            size = "small",
+            color = "muted",
+        })
+        sSub:SetPoint("TOPLEFT", sLabel, "BOTTOMLEFT", 0, -4)
+        styleStatus:SetText("Style: " .. name .. " (" .. (D.cornerStyle or "?")
+            .. ") — session only; framework settings persist.")
+        Log("Interface style", name, D.cornerStyle)
+    end
+
+    for i, styleName in ipairs({ "framework", "retail", "classic", "forever" }) do
+        local btn = UI:CreateButton(styleRow, styleName, 76, 22)
+        btn:SetPoint("TOPLEFT", styleRow, "TOPLEFT", (i - 1) * 84, 0)
+        btn:SetScript("OnClick", function() ApplyStyle(styleName) end)
+    end
+
+    add(UI:CreateLabel(frame, {
+        text = "What to test: both font buttons visibly restyle the sample; applying the alternate theme changes the section header and the design button's hover border/text to cyan; Restore returns them to RGX green. The status line must show the matching primary/accent HEX values. Style buttons rebuild the sample frame with that style's corners and palette; open windows re-skin on reload.",
         size = "small",
         color = "muted",
         width = 340,
