@@ -2,14 +2,14 @@
 
 The [RGX-Framework](https://github.com/RGXMods/RGX-Framework) reference addon **and** its in-game testing suite, in one install. It exists for two audiences at once:
 
-> RGX-Hello `v1.3.1` requires RGX-Framework `v2.7.7` or newer.
+> RGX-Hello `v1.3.2` requires RGX-Framework `v2.7.15-beta.1` or newer, as declared by all six TOCs. These are the current source versions, not a new release announcement.
 
 - **Addon developers** — `data/core.lua` is the canonical "hello world": the smallest complete RGX addon, written in the declarative `RGXAddon` style you should copy when starting your own.
 - **Framework development** — `data/visualtest.lua` is the visual QA harness used to test RGX-Framework's features in-game before releases. As the framework grows, this suite grows with it; the goal is coverage of **every** framework feature.
 
 ## Source Contract Conformance
 
-RGX-Framework temporarily maintains an MCP transport at `tools/rgx-mcp/` as a private source-tree contract-conformance fixture. It is not part of the framework runtime or its published addon; public API/MCP/editor tooling belongs to the later RGX Studio product. RGX-Hello remains wired into the fixture in both directions:
+RGX-Framework owns the runtime Lua API and the reusable declarative contract, generation, validation, audit, MCP, and editor/authoring infrastructure. Its `tools/rgx-mcp/` transport is a private source-tree contract-conformance fixture, not a separately published product or part of the player addon. Developer tooling is optional: RGX-Hello and the framework runtime do not depend on MCP, Node.js, or an editor. A future RGX Studio application is a downstream consumer of that foundation, not the owner of runtime semantics or a shipped prerequisite. RGX-Hello remains wired into the fixture in both directions:
 
 - `rgx_generate_addon` can reproduce `data/core.lua`'s structure from a short spec — the hand-written file and the generator's output are kept convergent.
 - The framework's end-to-end test (`tools/rgx-mcp/test/test-rgx-hello.mjs`) runs the real MCP server against **this repo**: it validates `core.lua`'s opts table against the schema and audits every Lua file here for unsafe patterns. If this repo drifts from the contract, the framework's own test fails.
@@ -19,6 +19,8 @@ That loop has already paid off: its first run caught a framework bug (the declar
 ## The Hello World (`data/core.lua`)
 
 ```lua
+local RGX = _G.RGXFramework
+
 RGXAddon "RGX-Hello" {
     dbName  = "RGXHelloDB",
     slash   = "rgxhello",
@@ -86,17 +88,30 @@ Sound is intentionally untested here — the sound module is a per-addon registr
 
 ## Installation
 
-1. Install [RGX-Framework](https://github.com/RGXMods/RGX-Framework) (required dependency, v2.7.7+).
-2. Copy the `RGX-Hello` folder to `World of Warcraft\_retail_\Interface\AddOns\`.
-3. `/reload` or restart, and enable both addons.
+1. Install [RGX-Framework](https://github.com/RGXMods/RGX-Framework) (required dependency, v2.7.15-beta.1 or newer) for the same client flavor.
+2. Copy the `RGX-Hello` addon folder to that client's `Interface\AddOns\` directory (for example, `World of Warcraft\_retail_\Interface\AddOns\` for Retail). The TOC and `data/` folder must be directly inside `AddOns\RGX-Hello\`, not nested inside an extra download folder.
+3. `/reload` or restart, and enable both addons. No developer tooling is required to run them.
+
+Current source TOC coverage (metadata targets, not a claim that every client was tested in-game):
+
+| Client target | TOC | Interface |
+|---------------|-----|-----------|
+| Retail / Forever beta / Classic Era | `RGX-Hello.toc` | `120100`, `16001`, `11509` |
+| Classic Era | `RGX-Hello_Vanilla.toc` | `11509` |
+| Burning Crusade Classic | `RGX-Hello_TBC.toc` | `20506` |
+| Wrath / Titan target | `RGX-Hello_Wrath.toc` | `38002` |
+| Cataclysm (historical) | `RGX-Hello_Cata.toc` | `40402` |
+| Mists Classic | `RGX-Hello_Mists.toc` | `50504` |
+
+Keep the supplied TOCs together; the game chooses the applicable TOC. All six directly load `data/core.lua`, then `data/visualtest.lua`, and declare `RGXHelloDB` and `RGXVisualTestDB` as SavedVariables. The XML file is not in their load lists.
 
 ## Using This As a Template
 
-1. Copy the repo; rename the folder, `RGX-Hello.toc`, and `RGX-Hello.xml` to your addon's name.
-2. Edit the TOC header (`Title`, `Notes`, `Author`, `SavedVariables`).
+1. Copy the repo; rename the folder and each TOC you keep to your addon's name, preserving flavor suffixes. Keep only the client targets your addon actually supports.
+2. Edit the TOC header (`Title`, `Notes`, `Author`, `SavedVariables`), keeping `RequiredDeps: RGX-Framework` and an accurate `X-RGX-Framework-MinVersion`. Match `SavedVariables` to the declaration's `dbName`.
 3. Edit the `RGXAddon "..." { }` call in `data/core.lua` — `db` for settings, `options` for the panel, `every` for repeating work, and `onInit` for event/setup code while declarative `on` remains Tier 4.
-4. Delete `data/visualtest.lua` (and its TOC/XML lines) — it tests the framework, not your addon.
-5. Replace `media/icon.tga`, or drop the `minimap` key.
+4. Delete `data/visualtest.lua`, its entry from every retained TOC, and `RGXVisualTestDB` from those TOCs — the harness tests the framework, not your addon. `RGX-Hello.xml` is an unused alternate loader; remove it, or rename/update it only if you deliberately switch your TOCs to XML loading. Do not load the Lua files twice.
+5. Set `minimap` to your own texture path, or drop the key. The reference declaration currently uses the framework's `media/logo.tga`; the local `media/icon.tga` is not its configured icon.
 
 For the full declarative surface see the framework's [DECLARATIVE-API.md](https://github.com/RGXMods/RGX-Framework/blob/main/docs/DECLARATIVE-API.md), [SUPER-SIMPLE.md](https://github.com/RGXMods/RGX-Framework/blob/main/docs/SUPER-SIMPLE.md), and [API.md](https://github.com/RGXMods/RGX-Framework/blob/main/docs/API.md).
 
@@ -104,13 +119,14 @@ For the full declarative surface see the framework's [DECLARATIVE-API.md](https:
 
 ```
 RGX-Hello/
-├── RGX-Hello.toc      # Addon metadata
-├── RGX-Hello.xml      # Loads both files below
+├── RGX-Hello.toc      # Base metadata; directly loads core.lua then visualtest.lua
+├── RGX-Hello_*.toc    # Five flavor TOCs; same direct Lua load order
+├── RGX-Hello.xml      # Alternate loader, not referenced by the current TOCs
 ├── data/
 │   ├── core.lua       # The hello-world reference addon
 │   └── visualtest.lua # The framework testing suite (/rgxvisual)
 ├── media/
-│   └── icon.tga        # Minimap icon
+│   └── icon.tga        # Local icon asset; the declaration uses the framework logo
 └── docs/
     └── CHANGES.md      # Curated changelog (packaged as CHANGELOG.md)
 ```
