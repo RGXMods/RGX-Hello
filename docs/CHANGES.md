@@ -1,5 +1,9 @@
 # Changelog
 
+## Non-beta Candidate: [v1.3.3](changelogs/1.3.3.md)
+
+Retail 12.1.5 / Interface `120105`; client testing and publication pending.
+
 ## Current Release
 
 ### [v1.3.1](changelogs/1.3.1.md) - 2026-08-23
