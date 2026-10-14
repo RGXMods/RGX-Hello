@@ -208,7 +208,7 @@ async function publishCurseForge({ projectId, apiKey, flavors, version, releaseT
     changelogType: "markdown",
   });
   const form = new FormData();
-  form.append("metadata", new Blob([metadata], { type: "application/json" }));
+  form.append("metadata", metadata);
   form.append("file", new Blob([readFileSync(archive)]), basename(archive));
 
   const uploadUrl = `https://wow.curseforge.com/api/projects/${projectId}/upload-file`;
@@ -258,7 +258,7 @@ async function publishWago({ projectId, token, flavors, version, releaseType, ch
   }
 
   const form = new FormData();
-  form.append("metadata", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+  form.append("metadata", JSON.stringify(payload));
   form.append("file", new Blob([readFileSync(archive)]), basename(archive));
 
   const uploadUrl = `https://addons.wago.io/api/projects/${projectId}/version`;
