@@ -1,5 +1,6 @@
 ## Interface: 11509
 ## X-Wago-ID: j6jAbWNR
+## X-Curse-Project-ID: 1596350
 ## Version: 1.3.3
 ## Title: RGX-Hello
 ## Notes: RGX-Framework reference and compatibility test addon
