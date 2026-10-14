@@ -1,5 +1,10 @@
 # Changelog
 
+## Current Release: [v1.3.4](changelogs/1.3.4.md) - 2026-10-14
+
+- Connect CurseForge distribution (project 1596350) for automatic release uploads.
+- Fix the Wago metadata serialization in the release publisher.
+- Require RGX-Framework 2.7.17 or newer.
 ## Non-beta Candidate: [v1.3.3](changelogs/1.3.3.md)
 
 Retail 12.1.5 / Interface `120105`; client testing and publication pending.
