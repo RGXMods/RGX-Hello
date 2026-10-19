@@ -29,6 +29,10 @@ RGXAddon "RGX-Hello" {
         volume = 50,
     },
 
+    compat = {
+        GetAddOnMetadata = { "C_AddOns.GetAddOnMetadata", "GetAddOnMetadata" },
+    },
+
     every = {
         heartbeat = { 1, function(self, timer)
             self.heartbeatTicks = (self.heartbeatTicks or 0) + 1
@@ -45,8 +49,8 @@ RGXAddon "RGX-Hello" {
         },
     },
 
-    onInit = function()
-        local version = RGX.API.GetAddOnMetadata("RGX-Hello", "Version") or "unknown"
+    onInit = function(self)
+        local version = self.compat.GetAddOnMetadata("RGX-Hello", "Version") or "unknown"
         RGX:LoginMessage(string.format(
             "RGX-Hello v%s loaded with RGX-Framework v%s.",
             tostring(version),
