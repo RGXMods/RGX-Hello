@@ -1,10 +1,15 @@
 --=====================================================================================
 -- RGX-Hello — the smallest complete RGX-Framework addon.
 --
--- This is the entire addon. Line 1 is the addon: RGXAddon is a global the
+-- This is the entire addon. One call is the addon: RGXAddon is a global the
 -- framework provides -- ## RequiredDeps: RGX-Framework guarantees it exists
--- before this file runs. No local, no assert, no event frames, no C_Timer,
--- no SLASH_X globals, no SavedVariables boilerplate.
+-- before this file runs. No event frames, no C_Timer, no SLASH_X globals,
+-- no SavedVariables boilerplate.
+--
+-- The two guard lines above the call are the RGX contract compatibility
+-- handshake (docs/DECLARATIVE-API.md): an RGX-Framework too old to honor
+-- contract format 1 fails loudly with one clear message instead of
+-- silently ignoring this addon.
 --
 -- What this one call gives you for free:
 --   - saved settings with automatic persistence (db)
@@ -18,6 +23,10 @@
 --=====================================================================================
 
 local RGX = _G.RGXFramework
+if type(RGX) ~= "table" or type(RGX.RequireContract) ~= "function" then
+    error("RGX-Hello requires RGX-Framework 2.9.0 or newer with the RGX contract compatibility handshake. Update RGX-Framework.", 0)
+end
+RGX:RequireContract("RGX-Hello", 1, "2.9.0")
 
 RGXAddon "RGX-Hello" {
     dbName  = "RGXHelloDB",
