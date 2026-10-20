@@ -13,7 +13,8 @@
 --
 -- What this one call gives you for free:
 --   - saved settings with automatic persistence (db)
---   - a tabbed options panel with db-bound controls that save AND restore
+--   - a tabbed options panel with declarative pages/card grids
+--     (one two-column page here) and db-bound controls that save AND restore
 --     their visual state correctly (options)
 --   - a slash command whose default handler opens that panel (slash)
 --   - a minimap button (minimap)
@@ -53,8 +54,25 @@ RGXAddon "RGX-Hello" {
 
     options = {
         General = {
-            { toggle = "enabled", label = "Enable Addon" },
-            { slider = "volume", label = "Volume", min = 0, max = 100, suffix = "%" },
+            {
+                page  = "Basics",
+                grid  = 2,
+                cards = {
+                    {
+                        card     = "Core",
+                        controls = {
+                            { toggle = "enabled", label = "Enable Addon" },
+                        },
+                    },
+                    {
+                        card     = "Audio",
+                        columns  = 1,
+                        controls = {
+                            { slider = "volume", label = "Volume", min = 0, max = 100, suffix = "%" },
+                        },
+                    },
+                },
+            },
         },
     },
 
