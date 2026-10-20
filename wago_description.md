@@ -56,7 +56,7 @@ RGXAddon "RGX-Hello" {
 }
 ```
 
-That single call gives you saved settings with automatic persistence, a tabbed options panel with db-bound controls, a named repeating timer, a slash command, a minimap button, branded chat output, and framework-scoped startup logic. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
+That single call gives you saved settings with automatic persistence, a tabbed options panel with declarative pages/card grids and db-bound controls, a named repeating timer, a slash command, a minimap button, branded chat output, and framework-scoped startup logic. No event frames, no `C_Timer`, no `SLASH_X` globals, no SavedVariables boilerplate.
 
 ## The Testing Suite (`data/visualtest.lua`)
 
