@@ -24,9 +24,9 @@
 
 local RGX = _G.RGXFramework
 if type(RGX) ~= "table" or type(RGX.RequireContract) ~= "function" then
-    error("RGX-Hello requires RGX-Framework 2.9.0 or newer with the RGX contract compatibility handshake. Update RGX-Framework.", 0)
+    error("RGX-Hello requires RGX-Framework 2.10.0 or newer with the RGX contract compatibility handshake. Update RGX-Framework.", 0)
 end
-RGX:RequireContract("RGX-Hello", 1, "2.9.0")
+RGX:RequireContract("RGX-Hello", 1, "2.10.0")
 
 RGXAddon "RGX-Hello" {
     dbName  = "RGXHelloDB",
