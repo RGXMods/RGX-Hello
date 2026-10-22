@@ -1,6 +1,10 @@
 # Changelog
 
-## Current Release: [v1.3.4](changelogs/1.3.4.md) - 2026-10-14
+## Current Release: [v1.4.0](changelogs/1.4.0.md) - 2026-10-21
+
+- Adopt the RGX contract compatibility handshake (format 1, framework floor 2.10.0) and declarative card-grid option pages; all flavor TOCs carry X-RGX-Contract-Format provenance.
+
+## v1.3.4 - 2026-10-14
 
 - Connect CurseForge distribution (project 1596350) for automatic release uploads.
 - Fix the Wago metadata serialization in the release publisher.
