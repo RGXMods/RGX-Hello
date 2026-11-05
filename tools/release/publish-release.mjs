@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// RGX in-house release publisher — the BigWigsMods/packager replacement.
+// RGX in-house release publisher - replaces the retired community packager.
 //
 // Publishes the deterministic archive built by the in-house packager:
 //   1. Creates the GitHub release and uploads the zip + release.json.
 //   2. Uploads to CurseForge when X-Curse-Project-ID and CF_API_KEY exist.
 //   3. Uploads to Wago when X-Wago-ID and WAGO_API_TOKEN exist.
 //
-// Upload protocols verified against BigWigsMods/packager release.sh:
+// Upload protocols verified against the retired community packager:
 //   - CurseForge: GET  https://wow.curseforge.com/api/game/wow/versions
 //                 POST https://wow.curseforge.com/api/projects/<id>/upload-file
 //   - Wago:       GET  https://addons.wago.io/api/data/game
@@ -52,7 +52,7 @@ function readToc(path) {
 
 // Flavor names follow the convention checked by tools/ci/release-metadata-check.mjs:
 // mainline / classic / forever / bcc / wrath / titan / cata / mists. Ranges
-// mirror BigWigsMods/packager's toc_to_type classification so interface bumps
+// mirror the retired community packager's toc_to_type classification so interface bumps
 // do not require editing a literal map.
 function flavorForInterface(interfaceValue) {
   const value = Number(interfaceValue);
@@ -70,7 +70,7 @@ function flavorForInterface(interfaceValue) {
   fail(`unrecognized TOC Interface value "${interfaceValue}"`);
 }
 
-// CurseForge gameVersionTypeID values (BigWigsMods/packager release.sh).
+// CurseForge gameVersionTypeID values (verified community-packager parity).
 const CF_GAME_TYPE_ID = new Map([
   ["mainline", 517],
   ["classic", 67408],
@@ -90,6 +90,24 @@ function wagoType(flavor) {
   if (flavor === "wrath") return "wotlk";
   if (flavor === "mists") return "mop";
   return flavor;
+}
+
+// Interface number -> patch name used by CurseForge and Wago (120105 -> "12.1.5", 16001 -> "1.60.1").
+export function patchName(wowInterface) {
+  const n = Number(wowInterface);
+  if (!Number.isFinite(n) || n <= 0) return "";
+  return `${Math.floor(n / 10000)}.${Math.floor(n / 100) % 100}.${n % 100}`;
+}
+
+// Numeric dotted-version compare. Plain string comparison ranks "9.2.7" above "12.1.7".
+export function compareVersions(left, right) {
+  const a = String(left).split(".").map(Number);
+  const b = String(right).split(".").map(Number);
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const diff = (a[i] || 0) - (b[i] || 0);
+    if (diff) return diff;
+  }
+  return 0;
 }
 
 function collectFlavors(tocPath) {
@@ -190,7 +208,8 @@ async function publishCurseForge({ projectId, apiKey, flavors, version, releaseT
     if (!typeId) fail(`no CurseForge gameVersionTypeID known for flavor "${flavor}"`);
     const typed = versionRows.filter((row) => row.gameVersionTypeID === typeId);
     if (!typed.length) fail(`CurseForge reports no game versions for flavor "${flavor}"`);
-    const exact = typed.find((row) => row.name === String(wowInterface));
+    const wanted = patchName(wowInterface);
+    const exact = typed.find((row) => row.name === String(wowInterface) || row.name === wanted);
     if (exact) {
       gameVersions.push(exact.id);
     } else {
@@ -208,6 +227,9 @@ async function publishCurseForge({ projectId, apiKey, flavors, version, releaseT
     changelogType: "markdown",
   });
   const form = new FormData();
+  // CurseForge requires metadata as a plain string form value (curl -F
+  // "metadata=..."); a Blob field becomes a file part and
+  // the API answers 1001 "Missing field `metadata`".
   form.append("metadata", metadata);
   form.append("file", new Blob([readFileSync(archive)]), basename(archive));
 
@@ -247,17 +269,26 @@ async function publishWago({ projectId, token, flavors, version, releaseType, ch
     stability: releaseType === "release" ? "stable" : releaseType,
     changelog,
   };
-  for (const { flavor } of flavors) {
+  for (const { flavor, interface: wowInterface } of flavors) {
     const type = wagoType(flavor);
     const list = patches[type];
     if (!Array.isArray(list) || !list.length) {
       fail(`Wago reports no patches for flavor type "${type}"`);
     }
-    // Ship the latest patch per flavor — our TOC interfaces track live clients.
-    payload[`supported_${type}_patches`] = [list.reduce((best, value) => (value > best ? value : best))];
+    // Exact patch for the TOC interface; otherwise the numerically latest patch for the flavor.
+    const wanted = patchName(wowInterface);
+    let chosen = list.includes(wanted) ? wanted : null;
+    if (!chosen) {
+      chosen = list.reduce((best, value) => (compareVersions(value, best) > 0 ? value : best));
+      console.warn(`WARNING: no Wago patch "${wanted}" for ${type}; using "${chosen}"`);
+    }
+    const key = `supported_${type}_patches`;
+    payload[key] = [...new Set([...(payload[key] || []), chosen])];
   }
 
   const form = new FormData();
+  // Wago, like CurseForge, requires metadata as a plain string form value;
+  // a Blob part is rejected with 422 "The metadata must be a string."
   form.append("metadata", JSON.stringify(payload));
   form.append("file", new Blob([readFileSync(archive)]), basename(archive));
 
@@ -295,8 +326,8 @@ if (!existsSync(changelogFile)) fail(`changelog file does not exist: ${changelog
 const tocText = readToc(tocPath);
 const tocVersion = (tocField(tocText, "Version") ?? "").replace(/^v/, "");
 if (!tocVersion) fail(`${basename(tocPath)} declares no Version`);
-// Release names use the color-cleaned TOC Title (BigWigs parity, e.g. BLU
-// publishes as "Better Level-Up!"); fall back to the TOC file stem.
+// Release names use the color-cleaned TOC Title (the display name players
+// see in the addon list); fall back to the TOC file stem.
 const tocTitle = (tocField(tocText, "Title") ?? "")
   .replace(/\|c[0-9a-fA-F]{8}/g, "")
   .replace(/\|r/g, "")
