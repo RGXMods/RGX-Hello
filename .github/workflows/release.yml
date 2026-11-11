@@ -185,7 +185,7 @@ jobs:
 
           case "$release_type" in
             "release")
-              title="RGX-Hello ${version}"
+              title="RGX | RGX-Hello ${version}"
               color=385018
               footer="RGX Mods • Stable Release"
               description="A new stable release of RGX-Hello is live."
@@ -194,7 +194,7 @@ jobs:
               channel="Release"
               ;;
             "beta")
-              title="RGX-Hello ${version} (Beta)"
+              title="RGX | RGX-Hello ${version} (Beta)"
               color=16744448
               footer="RGX Mods • Beta Build"
               description="Beta build available for testing."
@@ -203,7 +203,7 @@ jobs:
               channel="Beta"
               ;;
             "alpha"|"alpha-branch")
-              title="RGX-Hello ${version} (Alpha)"
+              title="RGX | RGX-Hello ${version} (Alpha)"
               color=9109504
               footer="RGX Mods • Alpha Build"
               description="Alpha build available for testing."
@@ -212,7 +212,7 @@ jobs:
               channel="Alpha"
               ;;
             "dev")
-              title="RGX-Hello ${version} (Dev)"
+              title="RGX | RGX-Hello ${version} (Dev)"
               color=3447003
               footer="RGX Mods • Dev Build"
               description="Development build from the dev branch."
@@ -221,7 +221,7 @@ jobs:
               channel="Dev"
               ;;
             *)
-              title="RGX-Hello ${version}"
+              title="RGX | RGX-Hello ${version}"
               color=10000000
               footer="RGX Mods"
               description="Build completed."
@@ -232,14 +232,14 @@ jobs:
           esac
 
           jq -n \
-            --arg username "RGX-Hello Releases" \
+            --arg username "RGX Releases" \
             --arg avatar_url "https://raw.githubusercontent.com/RGXMods/RGX-Framework/main/media/logo.png" \
             --arg title "$title" \
             --arg url "$release_url" \
             --arg description "$description" \
             --argjson color "$color" \
             --arg footer "$footer" \
-            --arg icon_url "https://raw.githubusercontent.com/RGXMods/SimpleQuestPlates/main/media/kiwi.gif" \
+            --arg icon_url "https://raw.githubusercontent.com/RGXMods/RGX-Framework/main/media/kiwi.gif" \
             --arg timestamp "${RELEASE_TIMESTAMP}" \
             --arg summary "$summary" \
             --arg downloads "$downloads" \
@@ -301,7 +301,7 @@ jobs:
             --arg run_id "$run_id" \
             --arg timestamp "$timestamp" \
             '{
-              username: "RGX-Hello Build Failed",
+              username: "RGX Build Failed",
               avatar_url: "https://raw.githubusercontent.com/RGXMods/RGX-Framework/main/media/logo.png",
               embeds: [{
                 title: "RGX-Hello Build Failed",
