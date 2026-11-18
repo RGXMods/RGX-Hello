@@ -19,15 +19,15 @@
 --   - a slash command whose default handler opens that panel (slash)
 --   - a minimap button (minimap)
 --   - branded chat output (welcome, self:Print)
---   - startup and repeating timer logic routed through RGX paths -- never a
---     manual event frame or C_Timer (onInit, declarative every)
+--   - startup, trigger and repeating timer logic routed through RGX paths --
+--     never a manual event frame or C_Timer (onInit, declarative on, every)
 --=====================================================================================
 
 local RGX = _G.RGXFramework
 if type(RGX) ~= "table" or type(RGX.RequireContract) ~= "function" then
-    error("RGX-Hello requires RGX-Framework 2.18.3 or newer with the RGX contract compatibility handshake. Update RGX-Framework.", 0)
+    error("RGX-Hello requires RGX-Framework 2.19.0 or newer with the RGX contract compatibility handshake. Update RGX-Framework.", 0)
 end
-RGX:RequireContract("RGX-Hello", 1, "2.18.3")
+RGX:RequireContract("RGX-Hello", 1, "2.19.0")
 
 RGXAddon "RGX-Hello" {
     dbName  = "RGXHelloDB",
@@ -50,6 +50,13 @@ RGXAddon "RGX-Hello" {
                 self:CancelTimer(timer)
             end
         end },
+    },
+
+    -- Trigger words: each maps to one framework module (levelup -> RGXLevelUp).
+    on = {
+        levelup = function(self, level)
+            self:Print(string.format("Level %s. Hello from the other side of the grind.", tostring(level)))
+        end,
     },
 
     options = {

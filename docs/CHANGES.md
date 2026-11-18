@@ -1,6 +1,12 @@
 # Changelog
 
-## Current Release: [v1.4.0](changelogs/1.4.0.md) - 2026-10-21
+## Current Release: [v1.8.17](changelogs/1.8.17.md) - 2026-11-18
+
+- Track RGX-Framework v2.19.0: `X-RGX-Framework-MinVersion` and the `RGX:RequireContract` handshake floor are 2.19.0.
+- The example shows a declarative `on` trigger (`on = { login = ... }`), the 2.19.0 way to react to game events.
+- Test pages scroll inside the options panel instead of running past its bottom.
+
+## v1.4.0 - 2026-10-21
 
 - Adopt the RGX contract compatibility handshake (format 1, framework floor 2.10.0) and declarative card-grid option pages; all flavor TOCs carry X-RGX-Contract-Format provenance.
 
@@ -64,4 +70,4 @@ Retail 12.1.5 / Interface `120105`; client testing and publication pending.
 
 - Initial release: RGX-Hello rewritten as a single-file addon built entirely on RGX-Framework's `RGXAddon` declarative front door.
 - Demonstrates saved settings, a tabbed options panel, a slash command, a minimap button, and event handling in one call.
-- Release automation wired up (CurseForge/Wago via `BigWigsMods/packager`, Discord notifications).
+- Release automation wired up (CurseForge/Wago uploads, Discord notifications).

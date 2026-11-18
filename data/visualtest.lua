@@ -66,12 +66,16 @@ local function Project()
     ApplyPanelTheme()
 end
 
+-- Stack widgets down the page. The page is the panel's scrolling canvas, and its height grows with what is
+-- placed, so long pages scroll instead of running past the bottom of the panel.
 local function Place(parent)
     local y = -18
     return function(widget, gap)
         if not widget then return nil end
         widget:SetPoint("TOPLEFT", parent, "TOPLEFT", 18, y)
         y = y - (widget:GetHeight() or 28) - (gap or 12)
+        parent._rgxMinHeight = math.max(parent._rgxMinHeight or 0, -y + 18)
+        if parent.SetHeight then parent:SetHeight(parent._rgxMinHeight) end
         return widget
     end
 end
@@ -830,8 +834,15 @@ local TEST_TABS = {
     { text = "Design",    content = BuildDesignTab },
     { text = "System",    content = BuildSystemTab },
 }
+-- Each page is built on the panel's scrolling canvas (frame._rgxCanvas), so it scrolls inside the panel.
 for _, t in ipairs(TEST_TABS) do
-    R:AddOptionsTab("RGX-Hello", t.text, t.content, { width = 820, height = 720, maxPerRow = 5 })
+    local build = t.content
+    local function content(frame)
+        local host = frame._rgxCanvas or frame
+        build(host)
+        if not host._rgxMinHeight then host._rgxMinHeight = 480 end
+    end
+    R:AddOptionsTab("RGX-Hello", t.text, content, { width = 820, height = 720, maxPerRow = 5 })
 end
 
 local function OpenPanel()
