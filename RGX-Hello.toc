@@ -1,7 +1,7 @@
 ## Interface: 120105, 16001, 11509
 ## X-Wago-ID: j6jAbWNR
 ## X-Curse-Project-ID: 1596350
-## Version: 1.8.16
+## Version: 1.8.17
 ## X-WoWI-ID: 27291
 ## Title: RGX-Hello
 ## Notes: The smallest complete RGX-Framework addon -- a reference/template for building on RGX, plus its visual QA harness (/rgxvisual, /rgxcolor).
