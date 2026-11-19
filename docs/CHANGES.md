@@ -1,6 +1,10 @@
 # Changelog
 
-## Current Release: [v1.8.17](changelogs/1.8.17.md) - 2026-11-18
+## Current Release: [v1.8.18](changelogs/1.8.18.md) - 2026-11-19
+
+- Track RGX-Framework v2.19.1: `X-RGX-Framework-MinVersion` and the `RGX:RequireContract` handshake floor are 2.19.1.
+
+## v1.8.17 - 2026-11-18
 
 - Track RGX-Framework v2.19.0: `X-RGX-Framework-MinVersion` and the `RGX:RequireContract` handshake floor are 2.19.0.
 - The example shows a declarative `on` trigger (`on = { login = ... }`), the 2.19.0 way to react to game events.
