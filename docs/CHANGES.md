@@ -1,5 +1,9 @@
 # Changelog
 
+## Current Release: [v1.8.21](changelogs/1.8.21.md) - 2026-11-22
+
+- Track RGX-Framework v2.19.4 in every flavor TOC and the contract handshake.
+
 ## Current Release: [v1.8.20](changelogs/1.8.20.md) - 2026-11-22
 
 - Track RGX-Framework v2.19.3 in every flavor TOC and the contract handshake.
